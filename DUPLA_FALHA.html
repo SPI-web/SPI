@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> NT-SPI DUPLA FALHA </title>
+    <link rel="icon" type="image/png" href="icons/nt.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FF6347;
+        }
+        .container {
+            border: 2px solid #000;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+        }
+        .titulo {
+            background-color: #FF6347; /* Vermelho Claro */
+            color: #fff; /* Branco */
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .carimbo {
+            border: 2px solid #000;
+            padding: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .carimboTitulo {
+            background-color: #FF6347; /* Vermelho Claro */
+            color: #fff; /* Branco */
+            padding: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 3px solid #d3d3d3; /* Linhas cinza claro e mais grossas */
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #FF6347; /* Vermelho Claro */
+            color: #fff; /* Branco */
+        }
+        td {
+            background-color: #fff; /* Branco */
+        }
+        .botoes {
+            margin-top: 20px;
+        }
+        .botoes button {
+            margin-right: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .container-principal {
+        background-color: #fff; /* Fundo branco */
+        border-radius: 15px; /* Bordas arredondadas */
+        padding: 20px; /* Espaçamento interno */
+        margin: 20px auto; /* Centraliza o container */
+        width: 90%; /* Largura responsiva */
+        max-width: 1200px; /* Limita a largura máxima */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
+        }
+
+        /* Adicione ao <style> do <head> ou em seu CSS principal */
+.btn-salvar {
+    background-color: #FF6347;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #e5533d;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #FF6347;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #e5533d;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
+    </style>
+</head>
+<body>
+    <div class="container-principal">
+
+        <div class="centralizado">
+            <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+            <br><br>
+            <label for="historico"></label>
+            <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+                <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+            </select><br>
+        </div>
+
+
+    <div class="container">
+        <div class="titulo"> NT-SPI ‼️ DUPLA FALHA ‼️</div>
+        <form id="afectacao-form">
+            
+            <div class="form-section">
+                <p>EQUIPAMENTO: <input type="text" id="equipamento"></p>
+                <p>AFETAÇÃO FTTX: <input type="text" id="afectacao-fttx"></p>
+                <p>AFETAÇÃO MOVEL: <input type="text" id="afectacao-movel"></p>               
+            </div><br style="line-height: 0.2;">
+            <div class="form-section">
+                <h2>Falha 01:</h2>
+                <p><strong>Data Falha1:</strong> <input type="datetime-local" id="data-falha1"></p>
+                <p>Local: <input type="text" id="local-falha1"></p>
+                <p>TA: <input type="text" id="ta-falha1"></p>
+                <p>ROTA E CABO: <input type="text" id="rota-cabo-falha1"></p>
+              
+                <p>STATUS: <textarea id="status-falha1"></textarea></p>
+            </div><br style="line-height: 0.2;">
+            <div class="form-section">
+                <h2>Falha 02</h2>
+                <p><strong>Data Falha2:</strong> <input type="datetime-local" id="data-falha2"></p>
+                <p>Local: <input type="text" id="local-falha2"></p>
+                <p>TA: <input type="text" id="ta-falha2"></p>
+                <p>ROTA E CABO: <input type="text" id="rota-cabo-falha2"></p>
+                <p>STATUS: <textarea id="status-falha2"></textarea></p>
+            </div><br style="line-height: 0.2;">
+            <button type="button" onclick="gerarCarimbo()">Enviar</button>
+        </form>
+
+        <div id="result-section" class="carimbo">
+            <div class="carimboTitulo">NT-SPI ‼️ DUPLA FALHA ‼️ </div>
+            <table>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Atualização</th>
+                </tr>
+                <tr>
+                    <td>EQUIPAMENTO</td>
+                    <td><span id="result-equipamento"></span></td>
+                </tr>
+                <tr>
+                    <td>AFETAÇÃO FTTX</td>
+                    <td><span id="result-afectacao-fttx"></span></td>
+                </tr>
+                <tr>
+                    <td>AFETAÇÃO MOVEL</td>
+                    <td><span id="result-afectacao-movel"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td><strong>Falha 1</strong></td>
+                </tr>
+                <tr>
+                    <td><span>Data Falha</span></td>
+                    <td><span id="result-data-falha1"></span></td>
+                </tr>
+                <tr>
+                    <td>Local</td>
+                    <td><span id="result-local-falha1"></span></td>
+                </tr>
+                <tr>
+                    <td>TA</td>
+                    <td><span id="result-ta-falha1"></span></td>
+                </tr>
+                <tr>
+                    <td>ROTA E CABO</td>
+                    <td><span id="result-rota-cabo-falha1"></span></td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td><span id="result-status-falha1"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td><strong>Falha 2</strong></td>
+                </tr>
+                <tr>
+                    <td><span>Data Falha</span></td>
+                    <td><span id="result-data-falha2"></span></td>
+                </tr>
+                <tr>
+                    <td>Local</td>
+                    <td><span id="result-local-falha2"></span></td>
+                </tr>
+                <tr>
+                    <td>TA</td>
+                    <td><span id="result-ta-falha2"></span></td>
+                </tr>
+                <tr>
+                    <td>ROTA E CABO</td>
+                    <td><span id="result-rota-cabo-falha2"></span></td>
+                </tr>
+                <tr>
+                    <td>STATUS</td>
+                    <td><span id="result-status-falha2"></span></td>
+                </tr>
+            </table>
+            <div class="botoes">
+                <button id="voltar">Voltar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCnrBSyHTXkb_5bH8l7chGQ9s66cN4yQLs",
+  authDomain: "carimbo-dupla-falha.firebaseapp.com",
+  projectId: "carimbo-dupla-falha",
+  storageBucket: "carimbo-dupla-falha.firebasestorage.app",
+  messagingSenderId: "90493358530",
+  appId: "1:90493358530:web:ad501a1a31bde42cb3c65b",
+  measurementId: "G-24031R7BRX"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+
+
+
+function salvarFormulario() {
+    const equipamento = document.getElementById('equipamento').value;
+    const ta = document.getElementById('ta-falha1').value;
+
+    if (!ta) {
+        alert("Informe a TA para salvar.");
+        return;
+    }
+
+    const chave = ta; // TA será a chave única
+    const dados = {
+        equipamento,
+        afectacaoFttx: document.getElementById('afectacao-fttx').value,
+        afectacaoMovel: document.getElementById('afectacao-movel').value,
+        dataFalha1: document.getElementById('data-falha1').value,
+        localFalha1: document.getElementById('local-falha1').value,
+        taFalha1: ta,
+        rotaCaboFalha1: document.getElementById('rota-cabo-falha1').value,
+        statusFalha1: document.getElementById('status-falha1').value,
+        dataFalha2: document.getElementById('data-falha2').value,
+        localFalha2: document.getElementById('local-falha2').value,
+        taFalha2: document.getElementById('ta-falha2').value,
+        rotaCaboFalha2: document.getElementById('rota-cabo-falha2').value,
+        statusFalha2: document.getElementById('status-falha2').value
+    };
+
+    const ref = firebase.database().ref('eventos/' + chave);
+    ref.once('value', function(snapshot) {
+        if (snapshot.exists()) {
+            // TA já existe: atualiza
+            ref.update(dados, function(error) {
+                if (error) {
+                    alert("Erro ao atualizar: " + error);
+                } else {
+                    alert("Evento atualizado com sucesso!");
+                    atualizarDropdown(chave); // já seleciona
+                }
+            });
+        } else {
+            // Nova TA: cria
+            ref.set(dados, function(error) {
+                if (error) {
+                    alert("Erro ao salvar novo: " + error);
+                } else {
+                    alert("Novo evento salvo com sucesso!");
+                    atualizarDropdown(chave);
+                }
+            });
+        }
+    });
+}
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('eventos').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+            const equipamento = data && data.equipamento ? data.equipamento : '';
+            const option = document.createElement('option');
+            option.value = ta;
+            option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
+            if (ta === selecionarTA) {
+                option.selected = true;
+                carregarFormularioSelecionado(); // carrega imediatamente
+            }
+            dropdown.appendChild(option);
+        });
+    });
+}
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('eventos/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('equipamento').value = data.equipamento || '';
+            document.getElementById('afectacao-fttx').value = data.afectacaoFttx || '';
+            document.getElementById('afectacao-movel').value = data.afectacaoMovel || '';
+            document.getElementById('data-falha1').value = data.dataFalha1 || '';
+            document.getElementById('local-falha1').value = data.localFalha1 || '';
+            document.getElementById('ta-falha1').value = data.taFalha1 || '';
+            document.getElementById('rota-cabo-falha1').value = data.rotaCaboFalha1 || '';
+            document.getElementById('status-falha1').value = data.statusFalha1 || '';
+            document.getElementById('data-falha2').value = data.dataFalha2 || '';
+            document.getElementById('local-falha2').value = data.localFalha2 || '';
+            document.getElementById('ta-falha2').value = data.taFalha2 || '';
+            document.getElementById('rota-cabo-falha2').value = data.rotaCaboFalha2 || '';
+            document.getElementById('status-falha2').value = data.statusFalha2 || '';
+        }
+    });
+}
+
+
+
+       function gerarCarimbo() {
+    // Verifica o horário atual
+    const agora = new Date();
+    const hora = agora.getHours();
+
+    // Se for entre 22h e 7h, salva também
+    if (hora >= 22 || hora < 7) {
+        salvarFormulario();
+    }
+
+    document.getElementById('result-equipamento').textContent = document.getElementById('equipamento').value;
+    document.getElementById('result-afectacao-fttx').textContent = document.getElementById('afectacao-fttx').value;
+    document.getElementById('result-afectacao-movel').textContent = document.getElementById('afectacao-movel').value;
+
+    document.getElementById('result-data-falha1').textContent = formatarDataHora(document.getElementById('data-falha1').value);
+    document.getElementById('result-local-falha1').textContent = document.getElementById('local-falha1').value;
+    document.getElementById('result-ta-falha1').textContent = document.getElementById('ta-falha1').value;
+    document.getElementById('result-rota-cabo-falha1').textContent = document.getElementById('rota-cabo-falha1').value;
+    document.getElementById('result-status-falha1').textContent = document.getElementById('status-falha1').value;
+    document.getElementById('result-data-falha2').textContent = formatarDataHora(document.getElementById('data-falha2').value);
+    document.getElementById('result-local-falha2').textContent = document.getElementById('local-falha2').value;
+    document.getElementById('result-ta-falha2').textContent = document.getElementById('ta-falha2').value;
+    document.getElementById('result-rota-cabo-falha2').textContent = document.getElementById('rota-cabo-falha2').value;
+    document.getElementById('result-status-falha2').textContent = document.getElementById('status-falha2').value;
+
+    document.getElementById('result-section').style.display = 'block';
+}
+
+        function formatarDataHora(dataHora) {
+                if (!dataHora) return '';
+                var data = new Date(dataHora);
+                var dia = String(data.getDate()).padStart(2, '0');
+                var mes = String(data.getMonth() + 1).padStart(2, '0');
+                var ano = data.getFullYear();
+                var horas = String(data.getHours()).padStart(2, '0');
+                var minutos = String(data.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+            }
+
+        document.getElementById('voltar').addEventListener('click', function() {
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('afectacao-form').reset();
+        });
+    
+function formatarDataHora(dataHora) {
+    if (!dataHora) return '';
+    var data = new Date(dataHora);
+    var dia = String(data.getDate()).padStart(2, '0');
+    var mes = String(data.getMonth() + 1).padStart(2, '0');
+    var ano = data.getFullYear();
+    var horas = String(data.getHours()).padStart(2, '0');
+    var minutos = String(data.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+window.onload = function() {
+    atualizarDropdown();
+};
+
+</script>
+</body>
+</html>
+
+<div class="sair">
+    <img src="icons/HP.png" alt="Ícone de Porta" class="icone-porta">
+    <span>Sair</span>
+</div>
+
+<style>
+    .sair {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        z-index: 9999; /* Fica sempre no topo */
+        background-color: rgba(255, 255, 255, 0.8); /* Fundo branco com leve transparência */
+        padding: 5px;
+        border-radius: 8px;
+    }
+
+    .icone-porta {
+        width: 30px;
+        height: 30px;
+        margin-right: 5px;
+    }
+
+    .sair span {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .sair:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    document.querySelector('.sair').addEventListener('click', function() {
+        window.location.href = "HOME.html"; // Substitua com o caminho da sua página
+    });
+</script>

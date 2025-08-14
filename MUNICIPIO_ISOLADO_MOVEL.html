@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="icons/nt.png">
+    <title>Afetação Móvel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #380450;
+        }
+        .container {
+            border: 2px solid #000;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+        }
+        .titulo {
+            background-color: #380450; /* Roxo */
+            color: #fff; /* Branco */
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .carimbo {
+            border: 2px solid #000;
+            padding: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .carimboTitulo {
+            background-color: #380450; /* Roxo */
+            color: #fff; /* Branco */
+            padding: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 3px solid #d3d3d3; /* Linhas cinza claro e mais grossas */
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #380450; /* Roxo */
+            color: #fff; /* Branco */
+        }
+        td {
+            background-color: #fff; /* Branco */
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        .botoes {
+            margin-top: 20px;
+        }
+        .botoes button {
+            margin-right: 10px;
+        }
+
+        .container-principal {
+        background-color: #fff; /* Fundo branco */
+        border-radius: 15px; /* Bordas arredondadas */
+        padding: 20px; /* Espaçamento interno */
+        margin: 20px auto; /* Centraliza o container */
+        width: 90%; /* Largura responsiva */
+        max-width: 1200px; /* Limita a largura máxima */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container-principal">
+    <div class="container">
+        <div class="titulo">NT-SPI 🗼 Afetação Móvel 🗼</div>
+        <h1>Formulário</h1><br>
+        <form id="meuFormulario">
+            
+            <label for="taRaiz">TA Raiz:</label>
+            <input type="text" id="taRaiz" name="taRaiz" required><br><br>
+
+            <label for="causa" style="margin-top: 5px;">Causa:</label>
+            <input type="text" id="causa" name="causa" required><br><br>
+
+            <label for="cidade">Municipio:</label>
+            <input type="text" id="cidade" name="cidade" required><br><br>
+
+            <label for="erbAfetacao">Elementos Afetados:</label>
+            <input type="text" id="erbAfetacao" name="erbAfetacao" required><br><br>
+
+            <label for="qtdsiteAfetado">Sites Afetados:</label>
+            <input type="text" id="qtdsiteAfetado" name="qtdsiteAfetado" required><br><br>
+
+            <label for="dataCriacao">Data da Falha:</label>
+            <input type="datetime-local" id="dataCriacao" name="dataCriacao" required><br><br>
+
+            <label for="status">Status:</label><br>
+            <textarea style="height: 70px; max-width: 596px;" id="status" name="status" required></textarea><br><br>
+
+            
+            <button type="submit">Enviar</button>
+        </form>
+        
+        <div class="carimbo" id="carimbo">
+            <div class="carimboTitulo">NT-SPI 🗼  Afetação Móvel 🗼</div>
+            <table>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Atualização</th>
+                </tr>
+                <tr>
+                    <td>TA Raiz</td>
+                    <td><span id="carimboTARaiz"></span></td>
+                </tr>
+                <tr>
+                    <td>Causas</td>
+                    <td><span id="carimboCausa"></span></td>
+                </tr>
+                <tr>
+                    <td>Municipio</td>
+                    <td><span id="carimboCidade"></span></td>
+                </tr>
+                <tr>
+                    <td>Elementos Afetados</td>
+                    <td><span id="carimboERBAfetacao"></span></td>
+                </tr>
+                <tr>
+                    <td>Sites Afetados</td>
+                    <td><span id="carimboqtdsiteAfetado"></span></td>
+                </tr>
+                <tr>
+                    <td>Data Falha</td>
+                    <td><span id="carimboDataCriacao"></span></td>
+                </tr>
+                <tr>
+                  <td>Status</td>
+                  <td><span id="carimbostatus"></span></td>
+              </tr>  
+            </table>
+
+            <div class='botoes'>
+                <button id='voltar'>Voltar</button> 
+            </div>
+
+        </div>
+
+    </div>
+</div>
+    <script>
+
+function formatarDataHora(dataCriacao) {
+ if (!dataCriacao) return '';
+ var data = new Date(dataCriacao);
+ var dia = String(data.getDate()).padStart(2, '0');
+ var mes = String(data.getMonth() + 1).padStart(2, '0');
+ var ano = data.getFullYear();
+ var horas = String(data.getHours()).padStart(2, '0');
+ var minutos = String(data.getMinutes()).padStart(2, '0');
+ return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+ }
+
+        document.getElementById('meuFormulario').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var taRaiz = document.getElementById('taRaiz').value;
+            var causa = document.getElementById('causa').value;
+            var cidade = document.getElementById('cidade').value;
+            var erbAfetacao = document.getElementById('erbAfetacao').value;
+            var qtdsiteAfetado = document.getElementById('qtdsiteAfetado').value;
+            var dataCriacao = document.getElementById('dataCriacao').value.replace('T', ' ');
+            var status = document.getElementById('status').value;
+
+            document.getElementById('carimboTARaiz').textContent = taRaiz;
+            document.getElementById('carimboCausa').textContent = causa;
+            document.getElementById('carimboCidade').textContent = cidade;
+            document.getElementById('carimboERBAfetacao').textContent = erbAfetacao;
+            document.getElementById('carimboqtdsiteAfetado').textContent = qtdsiteAfetado;
+            document.getElementById('carimboDataCriacao').textContent = formatarDataHora(dataCriacao)
+            document.getElementById('carimbostatus').textContent = status;
+
+            document.getElementById('carimbo').style.display = 'block';
+        });
+
+        document.getElementById('voltar').addEventListener('click', function() {
+            document.getElementById('carimbo').style.display = 'none';
+            document.getElementById('meuFormulario').reset();
+        });
+    </script>
+</body>
+</html>
+
+
+<div class="sair">
+    <img src="icons/HP.png" alt="Ícone de Porta" class="icone-porta">
+    <span>Sair</span>
+</div>
+
+<style>
+    .sair {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        z-index: 9999; /* Fica sempre no topo */
+        background-color: rgba(255, 255, 255, 0.8); /* Fundo branco com leve transparência */
+        padding: 5px;
+        border-radius: 8px;
+    }
+
+    .icone-porta {
+        width: 30px;
+        height: 30px;
+        margin-right: 5px;
+    }
+
+    .sair span {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .sair:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<script>
+    document.querySelector('.sair').addEventListener('click', function() {
+        window.location.href = "HOME.html"; // Substitua com o caminho da sua página
+    });
+</script>
+    
