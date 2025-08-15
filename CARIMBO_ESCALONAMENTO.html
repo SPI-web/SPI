@@ -185,13 +185,13 @@
    <option value="OLT-DOWN">OLT-DOWN</option>
    <option value="DRACO">DRACO</option>
    <option value="DWDM">DWDM</option>
-   <option value="HL4">HL4</option>
    <option value="METRO">METRO</option>
    <option value="MÓVEL">MÓVEL</option>
   <option value="ADJACÊNCIA">ADJANCÊNCIA</option>
   <option value="BBN">BBN</option>
   <option value="CONDOMÍNIO PLANTA INTERNA">CONDOMÍNIO PLANTA INTERNA</option>
   <option value="DWDM IMPACTO HL4">DWDM IMPACTO HL4</option>
+  <option value="DWDM IMPACTO HL3">DWDM IMPACTO HL3</option>
  </select><br><br>
  
  <label for="municipio">Municipio:</label>
@@ -217,6 +217,11 @@
 
   <label for="cabo">Cabo:</label>
  <input type="number" id="cabo" name="cabo"><br><br>
+
+ <div id="campoCaboConcorrente" style="display:none; margin-bottom: 20px; align-items: center;">
+  <label for="caboConcorrente" style="margin-right: 10px;">Cabo Concorrente:</label>
+  <input type="text" id="caboConcorrente" name="caboConcorrente" style="width: 150px;">
+</div>
 
  <label for="gestorAtual">Gestor Atual:</label>
 <select id="gestorAtual" name="gestorAtual" required>
@@ -337,6 +342,10 @@
         <td>Ponta A/B e Cabo</td>
         <td><span id="carimbopontABC"></span></td>
       </tr>
+      <tr id="linhaCaboConcorrente" style="display: none;">
+        <td>Cabo Concorrente</td>
+        <td><span id="carimboCaboConcorrente"></span></td>
+    </tr>
       <tr>
         <td>Gestor Atual</td>
         <td><span id="carimboGestorAtual"></span></td>
@@ -384,107 +393,159 @@
   </div>
 </div>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-      const escalonamentoSelect = document.getElementById("escalonamento");
-      const tituloElement = document.querySelector(".titulo");
-      const carimboTitulo = document.querySelector(".carimboTitulo");
-      const botoes = document.querySelectorAll(".botoes button");
-      const ths = document.querySelectorAll("th");
-      const container = document.querySelector(".container");
-      const carimboBox = document.getElementById("carimbo");
-   
-      const COR_PADRAO = "#ff6f00";
-      const COR_CRITICA = "#b30000";
-      const FUNDO_CONTAINER_CRITICO = "#ffeaea";
-      const FUNDO_CONTAINER_NORMAL = "#f9f9f9";
-      const FUNDO_CARIMBO_NORMAL = "#ffffff";
-      const TITULO_PADRAO = "NT-SPI 🌡️ Escalonamentos 🌡️";
-      const TITULO_CRITICO = 'NT - SPI <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;"> DWDM IMPACTO HL4 <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;">';
-   
-      escalonamentoSelect.addEventListener("change", function () {
-          const isCritico = this.value === "DWDM IMPACTO HL4";
-   
-          // Fundo geral da página
-  document.body.style.backgroundColor = isCritico ? COR_CRITICA : COR_PADRAO;
-   
-          // Botões
-          botoes.forEach(btn => {
-  btn.style.backgroundColor = isCritico ? COR_CRITICA : COR_PADRAO;
-          });
-   
-          // Cabeçalhos da tabela
-          ths.forEach(th => {
-  th.style.backgroundColor = isCritico ? COR_CRITICA : COR_PADRAO;
-          });
-   
-          // Container do formulário
-          if (container) {
-  container.style.backgroundColor = isCritico ? FUNDO_CONTAINER_CRITICO : FUNDO_CONTAINER_NORMAL;
-          }
-   
-          // Container do carimbo
-          if (carimboBox) {
-  carimboBox.style.backgroundColor = isCritico ? FUNDO_CONTAINER_CRITICO : FUNDO_CARIMBO_NORMAL;
-          }
-   
-          // Título do formulário
-          if (tituloElement) {
-              tituloElement.innerHTML = isCritico ? TITULO_CRITICO : TITULO_PADRAO;
-  tituloElement.style.backgroundColor = isCritico ? COR_CRITICA : COR_PADRAO;
-          }
-   
-          // Título do carimbo
-          if (carimboTitulo) {
-              carimboTitulo.innerHTML = isCritico ? TITULO_CRITICO : TITULO_PADRAO;
-  carimboTitulo.style.backgroundColor = isCritico ? COR_CRITICA : COR_PADRAO;
-          }
-      });
-  });
+document.addEventListener("DOMContentLoaded", function () {
+    const escalonamentoSelect = document.getElementById("escalonamento");
+    const tituloElement = document.querySelector(".titulo");
+    const carimboTitulo = document.querySelector(".carimboTitulo");
+    const botoes = document.querySelectorAll(".botoes button");
+    const ths = document.querySelectorAll("th");
+    const container = document.querySelector(".container");
+    const carimboBox = document.getElementById("carimbo");
+
+    const COR_PADRAO = "#ff6f00";
+    const COR_CRITICA = "#b30000"; // HL4
+    const COR_HL3 = "#494949"; // HL3
+    const FUNDO_CONTAINER_CRITICO = "#ffeaea";
+
+    const FUNDO_CONTAINER_HL3 = "#E2E2E2"; // roxo claro
+    const FUNDO_CONTAINER_NORMAL = "#f9f9f9";
+    const FUNDO_CARIMBO_NORMAL = "#ffffff";
+
+    const TITULO_PADRAO = "NT-SPI 🌡️ Escalonamentos 🌡️";
+    const TITULO_CRITICO = 'NT - SPI <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;"> DWDM IMPACTO HL4/HL3 <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;">';
+    const TITULO_HL3 = 'NT - SPI <img src="icons/icone_HL3.png" style="height:20px; vertical-align:middle;"> DWDM IMPACTO HL3/HL2 <img src="icons/icone_HL3.png" style="height:20px; vertical-align:middle;">';
+
+
+    escalonamentoSelect.addEventListener("change", function () {
+    const isHL4 = this.value === "DWDM IMPACTO HL4";
+    const isHL3 = this.value === "DWDM IMPACTO HL3";
+
+    // Fundo geral da página
+    document.body.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+
+    // Botões
+    botoes.forEach(btn => {
+        btn.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+    });
+
+    // Cabeçalhos da tabela
+    ths.forEach(th => {
+        th.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+    });
+
+    // Container do formulário
+    if (container) {
+        container.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CONTAINER_NORMAL;
+    }
+
+    // Container do carimbo
+    if (carimboBox) {
+        carimboBox.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CARIMBO_NORMAL;
+    }
+
+    // Título do formulário
+    if (tituloElement) {
+        tituloElement.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
+        tituloElement.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+    }
+
+    // Título do carimbo
+    if (carimboTitulo) {
+        carimboTitulo.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
+        carimboTitulo.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+    }
+
+    // Mostrar/ocultar campo Cabo Concorrente no formulário e definir required
+    const campoCaboConcorrente = document.getElementById("campoCaboConcorrente");
+    const inputCaboConcorrente = document.getElementById("caboConcorrente");
+    if (isHL4) {
+        campoCaboConcorrente.style.display = "flex";
+        inputCaboConcorrente.required = true;
+    } else {
+        campoCaboConcorrente.style.display = "none";
+        inputCaboConcorrente.required = false;
+        inputCaboConcorrente.value = ""; // limpa para evitar dados fantasmas
+    }
+
+    // Bloquear Nível = DIRETOR no HL3
+    const nivelSelect = document.getElementById("nivel");
+    if (isHL3) {
+        nivelSelect.value = "DIRETOR";
+        nivelSelect.disabled = true;
+    } else {
+        nivelSelect.disabled = false;
+    }
+});
+});
+
+
   </script>
  <script>
 let cachedJson = null; // Cache variable for JSON data
+
 
 function calcularOltsEmRisco(hl4Str) {
     if (!hl4Str) {
         document.getElementById("oltris").value = "";
         return;
     }
-    // Divide por quebra de linha, vírgula ou ponto e vírgula, remove espaços e vazios
-    let hl4List = Array.isArray(hl4Str.split(/\n|,|;/))
-        ? hl4Str.split(/\n|,|;/)
-            .map(s => s.trim())
-            .filter(item => /^[a-zA-Z0-9\s]+$/.test(item) && item.length > 0) // Validate alphanumeric and spaces, remove vazios
-        : [];
-
-    // Remove duplicados
-    hl4List = [...new Set(hl4List)];
-
+ 
+    // Extrai HL4s (separadores: espaço, \n, , ou ;)
+    const hl4List = hl4Str
+        .replace(/^"+|"+$/g, "")               // tira aspas iniciais/finais
+        .split(/\s+|,|;/)                      // quebra por espaços/virgula/;
+        .map(s => s.trim().toUpperCase())
+        .filter(item => item.length && item.startsWith("I-"));
+ 
+    // Remove duplicados da célula
+    const uniqueHl4 = [...new Set(hl4List)];
+    console.log("HL4 extraídos (únicos):", uniqueHl4);
+ 
     const processJson = (json) => {
-        let soma = 0;
-        hl4List.forEach(hl4Item => {
-            json.forEach(item => {
-                if (
-                    item["NOME_REDE_SWD"] &&
-                    item["NOME_REDE_SWD"].trim().toUpperCase() === hl4Item.toUpperCase()
-                ) {
-                    let qtd = parseInt(item["OLT por HL4"], 10);
-                    if (!isNaN(qtd)) soma += qtd;
-                }
-            });
+        // Criar índice: NOME_REDE_SWD (normalizado) -> qtd OLT (usar maior se houver duplicatas)
+        const index = {};
+        json.forEach(item => {
+            if (!item || !item["NOME_REDE_SWD"]) return;
+            const key = String(item["NOME_REDE_SWD"]).trim().toUpperCase();
+            // tenta pegar o campo OLT por HL4 de forma resiliente
+            let raw = item["OLT por HL4"] ?? item["OLT_por_HL4"] ?? item["OLT"] ?? "0";
+            let qtd = parseInt(String(raw).replace(/[^\d-]/g, ""), 10);
+            if (isNaN(qtd)) qtd = 0;
+ 
+            if (index[key] === undefined) {
+                index[key] = qtd;
+            } else if (qtd > index[key]) {
+                // se repetir, mantém o maior (evita undercount se dados inconsistentes)
+                console.warn(`Duplicata no JSON para ${key}: mantendo maior ${qtd} (antes ${index[key]})`);
+                index[key] = qtd;
+            }
         });
+ 
+        // Soma usando o índice (cada HL4 contado apenas 1 vez)
+        let soma = 0;
+        uniqueHl4.forEach(hl4Item => {
+            if (index[hl4Item] !== undefined) {
+                soma += index[hl4Item];
+                console.log(`HL4 ${hl4Item} -> ${index[hl4Item]} OLT(s)`);
+            } else {
+                console.warn(`HL4 ${hl4Item} NÃO encontrado no JSON`);
+            }
+        });
+ 
         document.getElementById("oltris").value = soma;
     };
-
+ 
     if (cachedJson) {
         processJson(cachedJson);
     } else {
-        fetch("https://grupotel-web.github.io/dadosOLT.json")
+fetch("https://grupotel-web.github.io/dadosOLT.json")
             .then(resp => resp.json())
             .then(json => {
-                cachedJson = json; // Cache the JSON response
+                cachedJson = json;
                 processJson(json);
             })
-            .catch(() => {
+            .catch(err => {
+                console.error("Erro fetch dadosOLT.json:", err);
                 document.getElementById("oltris").value = "";
             });
     }
@@ -755,6 +816,15 @@ if (rotaMatch) {
 }
 
 document.getElementById('carimbopontABC').innerHTML = textoRota;
+
+// Cabo Concorrente no carimbo (apenas se HL4)
+if (escalonamento === "DWDM IMPACTO HL4") {
+    document.getElementById("carimboCaboConcorrente").textContent = document.getElementById("caboConcorrente").value;
+    document.getElementById("linhaCaboConcorrente").style.display = "table-row";
+} else {
+    document.getElementById("linhaCaboConcorrente").style.display = "none";
+}
+
 
  document.getElementById('carimboGestorAtual').textContent = gestorAtual;
  document.getElementById('carimboTempoNoc').textContent = tempoNoc;
