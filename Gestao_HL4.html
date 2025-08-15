@@ -217,7 +217,7 @@ td {
 </form>
 <div class="update-info">
 <img alt="Imagem" src="icons/icone_HL4.png"/>
-<div style="font-size: 15px;">NT-SPI - GESTÃO HL4 - Atualização: <span id="currentDateTime"></span></div>
+<div style="font-size: 13px;">NT-SPI - GESTÃO HL4 - Atualização: <span id="currentDateTime"></span></div>
 </div><br/><br/>
 <div class="chart-container">
 <div class="chart-table">
@@ -450,7 +450,7 @@ tempoCell.style.backgroundColor = "#f0f0f0";
       // ÁREA RESPONSÁVEL (select)
       const areaCell = newRow.insertCell();
       const select = document.createElement("select");
-      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL", "NOC"].forEach(optionText => {
+      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL"].forEach(optionText => {
         const option = document.createElement("option");
         option.value = optionText;
         option.textContent = optionText;
@@ -481,17 +481,17 @@ document.addEventListener("DOMContentLoaded", carregarDoFirebase);
 <table border="1" style="width:100%; margin-top:20px;">
   <thead>
     <tr>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 120px; font-size: 15px;">LOCALIDADE</th>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 150px; font-size: 15px;">TA RAIZ</th>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 300px; font-size: 15px;">HL4</th>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 80px; font-size: 15px;">DATA ALARME</th>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 150px; font-size: 15px;">TEMPO CORRIDO</th>
-      <th style="background-color: #00b0aa; color: #ffffff; font-size: 15px;">AREA RESPONSÁVEL</th>
-      <th style="background-color: #00b0aa; color: #ffffff; font-size: 15px;">RESUMO STATUS</th>
-      <th style="background-color: #00b0aa; color: #ffffff; width: 100px; font-size: 15px;"></th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 120px; font-size: 13px;">LOCALIDADE</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 150px; font-size: 13px;">TA RAIZ</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 300px; font-size: 13px;">HL4</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 80px; font-size: 13px;">DATA ALARME</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 80px; font-size: 13px;">TEMPO CORRIDO</th>
+      <th style="background-color: #00b0aa; color: #ffffff; font-size: 13px;">AREA RESPONSÁVEL</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 300px; font-size: 13px;">RESUMO STATUS</th>
+      <th style="background-color: #00b0aa; color: #ffffff; width: 100px; font-size: 13px;"></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody style="font-size: 13px;">
   </tbody>
 </table>
 
@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", carregarDoFirebase);
     } else if (i === 5) {
       // ÁREA RESPONSÁVEL (select)
       var select = document.createElement("select");
-      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL", "NOC"].forEach(optionText => {
+      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL"].forEach(optionText => {
         var option = document.createElement("option");
         option.value = optionText;
         option.textContent = optionText;
