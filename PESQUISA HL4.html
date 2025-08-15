@@ -159,7 +159,7 @@
       const camadaQueimadas2024 = L.layerGroup({ pane: 'queimadas2024' }).addTo(map);
       const camadaQueimadas2025 = L.layerGroup({ pane: 'queimadas2025' }).addTo(map);
    
-  fetch('https://grupotel-web.github.io/dadosHL4.json')
+  fetch('https://spi-web.github.io/SPI/dadosHL4.json')
         .then(r => r.json())
         .then(data => {
           let html = '';
@@ -222,7 +222,7 @@
       });
    
       // CAMADA DE QUEIMADAS COM ÍCONES E POPUP
-  fetch('https://grupotel-web.github.io/queimadas.json')
+  fetch('https://spi-web.github.io/SPI/queimadas.json')
         .then(res => res.json())
         .then(data => {
           data.forEach(ponto => {
@@ -288,4 +288,5 @@
  
 </body>
 </html>
+
 
