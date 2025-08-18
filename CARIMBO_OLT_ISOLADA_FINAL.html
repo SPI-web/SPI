@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -127,6 +128,77 @@
         max-width: 1200px; /* Limita a largura máxima */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
     }
+
+
+
+    .btn-salvar {
+    background-color: #800080;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #800080;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+   .limparTabela {
+    background-color: #800080;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #800080;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #800080;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #800080;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
@@ -158,7 +230,19 @@
     </div>
 
     <div class="botoes">
-        <button class="limparTabela">Limpar</button>
+    </div>
+
+    <div class="centralizado">
+      
+        <label for="historico"></label>
+        <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+            <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+        </select><br>  
+        
+        <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+        <button class="limparTabela">🗑️ Limpar</button>
+
+        <br>
     </div>
 
 
@@ -308,6 +392,134 @@
     </div>
 </div>
 
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+
+
+
+function salvarFormulario() {
+    const ta = document.getElementById('taF1').value;
+    const equipamento = document.getElementById('equipamento').value;
+
+    if (!ta) {
+        alert("Informe a TA para salvar.");
+        return;
+    }
+
+    const chave = ta;
+    const dados = {
+        taFalha1: ta,
+        horarioFalha1: document.getElementById('horarioFalha1').value,
+        statusFalha1: document.getElementById('statusFalha1').value,
+        taFalha2: document.getElementById('taF2').value,
+        horarioFalha2: document.getElementById('horarioFalha2').value,
+        statusFalha2: document.getElementById('statusFalha2').value,
+        eps: document.getElementById('eps').value,
+        municipio: document.getElementById('Municipio').value,
+        equipamento: equipamento,
+        afetacao: document.getElementById('Afetação').value,
+        flat: document.getElementById('flat').value,
+        tipoFalha: document.getElementById('tipoFalha').value,
+        dataFalha: document.getElementById('dataFalha').value
+    };
+
+    const ref = firebase.database().ref('oltisolada/' + chave);
+    ref.once('value', function(snapshot) {
+        if (snapshot.exists()) {
+            ref.update(dados, function(error) {
+                if (error) {
+                    alert("Erro ao atualizar: " + error);
+                } else {
+                    alert("Evento atualizado com sucesso!");
+                    atualizarDropdown(chave);
+                }
+            });
+        } else {
+            ref.set(dados, function(error) {
+                if (error) {
+                    alert("Erro ao salvar novo: " + error);
+                } else {
+                    alert("Novo evento salvo com sucesso!");
+                    atualizarDropdown(chave);
+                }
+            });
+        }
+    });
+}
+
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('oltisolada').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+            const equipamento = data && data.equipamento ? data.equipamento : '';
+            const option = document.createElement('option');
+            option.value = ta;
+            option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
+            if (ta === selecionarTA) {
+                option.selected = true;
+                carregarFormularioSelecionado();
+            }
+            dropdown.appendChild(option);
+        });
+    });
+}
+
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('oltisolada/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('taF1').value = data.taFalha1 || '';
+            document.getElementById('horarioFalha1').value = data.horarioFalha1 || '';
+            document.getElementById('statusFalha1').value = data.statusFalha1 || '';
+            document.getElementById('taF2').value = data.taFalha2 || '';
+            document.getElementById('horarioFalha2').value = data.horarioFalha2 || '';
+            document.getElementById('statusFalha2').value = data.statusFalha2 || '';
+            document.getElementById('eps').value = data.eps || '';
+            document.getElementById('Municipio').value = data.municipio || '';
+            document.getElementById('equipamento').value = data.equipamento || '';
+            document.getElementById('Afetação').value = data.afetacao || '';
+            document.getElementById('flat').value = data.flat || '';
+            document.getElementById('tipoFalha').value = data.tipoFalha || '';
+            document.getElementById('dataFalha').value = data.dataFalha || '';
+        }
+    });
+}
+
+
+</script>
 
 
 
@@ -780,6 +992,11 @@ document.getElementById('voltar').addEventListener('click', function() {
     document.getElementById('carimbo').style.display = 'none';
     document.getElementById('meuFormulario').reset();
 });
+
+
+window.onload = function() {
+    atualizarDropdown();
+};
 </script>
 </body>
 </html>
