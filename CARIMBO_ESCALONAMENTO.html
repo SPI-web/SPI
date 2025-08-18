@@ -131,6 +131,77 @@
         max-width: 1200px; /* Limita a largura máxima */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
         }
+
+
+
+        .btn-salvar {
+    background-color: #ff6f00;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #ff6f00;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+.limparTabela {
+    background-color: #ff6f00;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #ff6f00;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #ff6f00;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #ff6f00;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
  </style>
 </head>
 <body>
@@ -169,8 +240,23 @@
 </div>
 
 <div class="botoes">
-    <button class="limparTabela">Limpar</button>
 </div>
+
+
+<div class="centralizado">
+
+  <label for="historico"></label>
+  <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+      <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+  </select><br> 
+
+  <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+  <button class="limparTabela">Limpar</button>
+
+  <br>
+</div>
+
+
 
  <div class="container">
  <div class="titulo">NT-SPI 🌡️ Escalonamentos 🌡️</div>
@@ -392,7 +478,149 @@
     </div>
   </div>
 </div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+
+
+
+function salvarFormulario() {
+    const ta = document.getElementById('ta').value;
+
+    if (!ta) {
+        alert("Informe a TA para salvar.");
+        return;
+    }
+
+    const chave = ta; // TA será a chave única
+    const dados = {
+        escalonamento: document.getElementById('escalonamento').value,
+        municipio: document.getElementById('municipio').value,
+        ta: ta,
+        dataAbertura: document.getElementById('dataAbertura').value,
+        taRaiz: document.getElementById('taRaiz').value,
+        oltris: document.getElementById('oltris').value,
+        pontaa: document.getElementById('pontaa').value,
+        pontab: document.getElementById('pontab').value,
+        cabo: document.getElementById('cabo').value,
+        caboConcorrente: document.getElementById('caboConcorrente').value,
+        gestorAtual: document.getElementById('gestorAtual').value,
+        tempoNoc: document.getElementById('tempoNoc').value,
+        tempoN1: document.getElementById('tempoN1').value,
+        tempoRede: document.getElementById('tempoRede').value,
+        outroTipo: document.getElementById('outroTipo').checked,
+        outrosOPP: document.getElementById('outrosOPP').value,
+        tempoOutro: document.getElementById('tempoOutro').value,
+        nivel: document.getElementById('nivel').value,
+        status: document.getElementById('status').value
+    };
+
+    const ref = firebase.database().ref('escalonamento/' + chave);
+    ref.once('value', function(snapshot) {
+        if (snapshot.exists()) {
+            ref.update(dados, function(error) {
+                if (error) {
+                    alert("Erro ao atualizar: " + error);
+                } else {
+                    alert("Evento atualizado com sucesso!");
+                    atualizarDropdown(chave);
+                }
+            });
+        } else {
+            ref.set(dados, function(error) {
+                if (error) {
+                    alert("Erro ao salvar novo: " + error);
+                } else {
+                    alert("Novo evento salvo com sucesso!");
+                    atualizarDropdown(chave);
+                }
+            });
+        }
+    });
+}
+
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('escalonamento').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+            const municipio = data && data.municipio ? data.municipio : '';
+            const option = document.createElement('option');
+            option.value = ta;
+            option.textContent = municipio ? `${ta} - ${municipio}` : ta;
+            if (ta === selecionarTA) {
+                option.selected = true;
+                carregarFormularioSelecionado();
+            }
+            dropdown.appendChild(option);
+        });
+    });
+}
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('escalonamento/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('escalonamento').value = data.escalonamento || '';
+            document.getElementById('municipio').value = data.municipio || '';
+            document.getElementById('ta').value = data.ta || '';
+            document.getElementById('dataAbertura').value = data.dataAbertura || '';
+            document.getElementById('taRaiz').value = data.taRaiz || '';
+            document.getElementById('oltris').value = data.oltris || '';
+            document.getElementById('pontaa').value = data.pontaa || '';
+            document.getElementById('pontab').value = data.pontab || '';
+            document.getElementById('cabo').value = data.cabo || '';
+            document.getElementById('caboConcorrente').value = data.caboConcorrente || '';
+            document.getElementById('gestorAtual').value = data.gestorAtual || '';
+            document.getElementById('tempoNoc').value = data.tempoNoc || '';
+            document.getElementById('tempoN1').value = data.tempoN1 || '';
+            document.getElementById('tempoRede').value = data.tempoRede || '';
+            document.getElementById('outroTipo').checked = data.outroTipo || false;
+            document.getElementById('outrosOPP').value = data.outrosOPP || '';
+            document.getElementById('tempoOutro').value = data.tempoOutro || '';
+            document.getElementById('nivel').value = data.nivel || '';
+            document.getElementById('status').value = data.status || '';
+
+            // Disparar o evento de mudança para aplicar a lógica de cor
+            const escalonamentoSelect = document.getElementById('escalonamento');
+            escalonamentoSelect.dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+
+window.onload = function() {
+    atualizarDropdown();
+};
+
 document.addEventListener("DOMContentLoaded", function () {
     const escalonamentoSelect = document.getElementById("escalonamento");
     const tituloElement = document.querySelector(".titulo");
@@ -402,12 +630,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const container = document.querySelector(".container");
     const carimboBox = document.getElementById("carimbo");
 
+    // Novos elementos da div centralizado
+    const historicoSelect = document.getElementById("historico");
+    const btnSalvar = document.querySelector(".btn-salvar");
+    const btnLimpar = document.querySelector(".limparTabela");
+
     const COR_PADRAO = "#ff6f00";
     const COR_CRITICA = "#b30000"; // HL4
     const COR_HL3 = "#494949"; // HL3
     const FUNDO_CONTAINER_CRITICO = "#ffeaea";
-
-    const FUNDO_CONTAINER_HL3 = "#E2E2E2"; // roxo claro
+    const FUNDO_CONTAINER_HL3 = "#E2E2E2";
     const FUNDO_CONTAINER_NORMAL = "#f9f9f9";
     const FUNDO_CARIMBO_NORMAL = "#ffffff";
 
@@ -415,68 +647,77 @@ document.addEventListener("DOMContentLoaded", function () {
     const TITULO_CRITICO = 'NT - SPI <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;"> DWDM IMPACTO HL4/HL3 <img src="icons/icone_HL4.png" style="height:20px; vertical-align:middle;">';
     const TITULO_HL3 = 'NT - SPI <img src="icons/icone_HL3.png" style="height:20px; vertical-align:middle;"> DWDM IMPACTO HL3/HL2 <img src="icons/icone_HL3.png" style="height:20px; vertical-align:middle;">';
 
-
     escalonamentoSelect.addEventListener("change", function () {
-    const isHL4 = this.value === "DWDM IMPACTO HL4";
-    const isHL3 = this.value === "DWDM IMPACTO HL3";
+        const isHL4 = this.value === "DWDM IMPACTO HL4";
+        const isHL3 = this.value === "DWDM IMPACTO HL3";
+        const corAtual = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
 
-    // Fundo geral da página
-    document.body.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+        // Fundo geral da página
+        document.body.style.backgroundColor = corAtual;
 
-    // Botões
-    botoes.forEach(btn => {
-        btn.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
+        // Botões
+        botoes.forEach(btn => {
+            btn.style.backgroundColor = corAtual;
+        });
+
+        // Cabeçalhos da tabela
+        ths.forEach(th => {
+            th.style.backgroundColor = corAtual;
+        });
+
+        // Container do formulário
+        if (container) {
+            container.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CONTAINER_NORMAL;
+        }
+
+        // Container do carimbo
+        if (carimboBox) {
+            carimboBox.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CARIMBO_NORMAL;
+        }
+
+        // Título do formulário
+        if (tituloElement) {
+            tituloElement.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
+            tituloElement.style.backgroundColor = corAtual;
+        }
+
+        // Título do carimbo
+        if (carimboTitulo) {
+            carimboTitulo.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
+            carimboTitulo.style.backgroundColor = corAtual;
+        }
+
+        // Mostrar/ocultar campo Cabo Concorrente no formulário e definir required
+        const campoCaboConcorrente = document.getElementById("campoCaboConcorrente");
+        const inputCaboConcorrente = document.getElementById("caboConcorrente");
+        if (isHL4) {
+            campoCaboConcorrente.style.display = "flex";
+            inputCaboConcorrente.required = true;
+        } else {
+            campoCaboConcorrente.style.display = "none";
+            inputCaboConcorrente.required = false;
+            inputCaboConcorrente.value = "";
+        }
+
+        // Bloquear Nível = DIRETOR no HL3
+        const nivelSelect = document.getElementById("nivel");
+        if (isHL3) {
+            nivelSelect.value = "DIRETOR";
+            nivelSelect.disabled = true;
+        } else {
+            nivelSelect.disabled = false;
+        }
+
+        // Estilizar elementos da div centralizado
+
+        if (historicoSelect) historicoSelect.style.borderColor = corAtual;
+        if (btnSalvar) btnSalvar.style.backgroundColor = corAtual;
+        if (btnLimpar) btnLimpar.style.backgroundColor = corAtual;
     });
-
-    // Cabeçalhos da tabela
-    ths.forEach(th => {
-        th.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
-    });
-
-    // Container do formulário
-    if (container) {
-        container.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CONTAINER_NORMAL;
-    }
-
-    // Container do carimbo
-    if (carimboBox) {
-        carimboBox.style.backgroundColor = isHL4 ? FUNDO_CONTAINER_CRITICO : isHL3 ? FUNDO_CONTAINER_HL3 : FUNDO_CARIMBO_NORMAL;
-    }
-
-    // Título do formulário
-    if (tituloElement) {
-        tituloElement.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
-        tituloElement.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
-    }
-
-    // Título do carimbo
-    if (carimboTitulo) {
-        carimboTitulo.innerHTML = isHL4 ? TITULO_CRITICO : isHL3 ? TITULO_HL3 : TITULO_PADRAO;
-        carimboTitulo.style.backgroundColor = isHL4 ? COR_CRITICA : isHL3 ? COR_HL3 : COR_PADRAO;
-    }
-
-    // Mostrar/ocultar campo Cabo Concorrente no formulário e definir required
-    const campoCaboConcorrente = document.getElementById("campoCaboConcorrente");
-    const inputCaboConcorrente = document.getElementById("caboConcorrente");
-    if (isHL4) {
-        campoCaboConcorrente.style.display = "flex";
-        inputCaboConcorrente.required = true;
-    } else {
-        campoCaboConcorrente.style.display = "none";
-        inputCaboConcorrente.required = false;
-        inputCaboConcorrente.value = ""; // limpa para evitar dados fantasmas
-    }
-
-    // Bloquear Nível = DIRETOR no HL3
-    const nivelSelect = document.getElementById("nivel");
-    if (isHL3) {
-        nivelSelect.value = "DIRETOR";
-        nivelSelect.disabled = true;
-    } else {
-        nivelSelect.disabled = false;
-    }
 });
-});
+
+
+
 
 
   </script>
