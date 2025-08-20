@@ -287,13 +287,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyCnrBSyHTXkb_5bH8l7chGQ9s66cN4yQLs",
-  authDomain: "carimbo-dupla-falha.firebaseapp.com",
-  projectId: "carimbo-dupla-falha",
-  storageBucket: "carimbo-dupla-falha.firebasestorage.app",
-  messagingSenderId: "90493358530",
-  appId: "1:90493358530:web:ad501a1a31bde42cb3c65b",
-  measurementId: "G-24031R7BRX"
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
 };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -313,7 +314,11 @@ function salvarFormulario() {
         return;
     }
 
-    const chave = ta; // TA será a chave única
+    const chave = ta;
+    const status1 = document.getElementById('status-falha1').value;
+    const status2 = document.getElementById('status-falha2').value;
+    const timestamp = obterDataHoraAtual();
+
     const dados = {
         equipamento,
         afectacaoFttx: document.getElementById('afectacao-fttx').value,
@@ -322,88 +327,110 @@ function salvarFormulario() {
         localFalha1: document.getElementById('local-falha1').value,
         taFalha1: ta,
         rotaCaboFalha1: document.getElementById('rota-cabo-falha1').value,
-        statusFalha1: document.getElementById('status-falha1').value,
+        statusFalha1: status1,
         dataFalha2: document.getElementById('data-falha2').value,
         localFalha2: document.getElementById('local-falha2').value,
         taFalha2: document.getElementById('ta-falha2').value,
         rotaCaboFalha2: document.getElementById('rota-cabo-falha2').value,
-        statusFalha2: document.getElementById('status-falha2').value
+        statusFalha2: status2
     };
 
-    const ref = firebase.database().ref('eventos/' + chave);
+    const ref = firebase.database().ref('DuplaFalha/' + chave);
+
     ref.once('value', function(snapshot) {
-        if (snapshot.exists()) {
-            // TA já existe: atualiza
-            ref.update(dados, function(error) {
-                if (error) {
-                    alert("Erro ao atualizar: " + error);
-                } else {
-                    alert("Evento atualizado com sucesso!");
-                    atualizarDropdown(chave); // já seleciona
-                }
-            });
-        } else {
-            // Nova TA: cria
-            ref.set(dados, function(error) {
-                if (error) {
-                    alert("Erro ao salvar novo: " + error);
-                } else {
-                    alert("Novo evento salvo com sucesso!");
-                    atualizarDropdown(chave);
-                }
-            });
+        const historico1 = snapshot.val()?.historicoStatusFalha1 || [];
+        const historico2 = snapshot.val()?.historicoStatusFalha2 || [];
+
+        historico1.push(`${timestamp} - ${status1}`);
+        historico2.push(`${timestamp} - ${status2}`);
+
+        dados.historicoStatusFalha1 = historico1;
+        dados.historicoStatusFalha2 = historico2;
+
+        if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
         }
+
+        ref.update(dados, function(error) {
+            if (error) {
+                alert("Erro ao salvar: " + error);
+            } else {
+                alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                atualizarDropdown(chave);
+            }
+        });
     });
 }
+
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
 
 
 function atualizarDropdown(selecionarTA = '') {
     const dropdown = document.getElementById('historico');
     dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
 
-    firebase.database().ref('eventos').once('value', function(snapshot) {
+    firebase.database().ref('DuplaFalha').once('value', function(snapshot) {
         snapshot.forEach(function(child) {
             const ta = child.key;
             const data = child.val();
-            const equipamento = data && data.equipamento ? data.equipamento : '';
-            const option = document.createElement('option');
-            option.value = ta;
-            option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
-            if (ta === selecionarTA) {
-                option.selected = true;
-                carregarFormularioSelecionado(); // carrega imediatamente
+
+            if (data.statusEvento === "Ativo") {
+                const equipamento = data.equipamento || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
             }
-            dropdown.appendChild(option);
         });
     });
 }
 
 
+
 function excluirEventoSelecionado() {
     const taSelecionado = document.getElementById('historico').value;
     if (!taSelecionado) {
-        alert("Selecione um evento para excluir.");
+        alert("Selecione um evento para encerrar.");
         return;
     }
 
-    if (confirm(`Tem certeza que deseja excluir o evento ${taSelecionado}?`)) {
-        firebase.database().ref('eventos/' + taSelecionado).remove()
-            .then(() => {
-                alert(`Evento ${taSelecionado} excluído com sucesso.`);
-                atualizarDropdown(); // Atualiza a lista após exclusão
-            })
-            .catch(error => {
-                alert("Erro ao excluir: " + error);
-            });
+    if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('DuplaFalha/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+            atualizarDropdown();
+        })
+        .catch(error => {
+            alert("Erro ao encerrar: " + error);
+        });
     }
 }
+
 
 
 function carregarFormularioSelecionado() {
     const chave = document.getElementById('historico').value;
     if (!chave) return;
 
-    firebase.database().ref('eventos/' + chave).once('value', function(snapshot) {
+    firebase.database().ref('DuplaFalha/' + chave).once('value', function(snapshot) {
         const data = snapshot.val();
         if (data) {
             document.getElementById('equipamento').value = data.equipamento || '';
@@ -413,12 +440,19 @@ function carregarFormularioSelecionado() {
             document.getElementById('local-falha1').value = data.localFalha1 || '';
             document.getElementById('ta-falha1').value = data.taFalha1 || '';
             document.getElementById('rota-cabo-falha1').value = data.rotaCaboFalha1 || '';
-            document.getElementById('status-falha1').value = data.statusFalha1 || '';
+
+            const historico1 = data.historicoStatusFalha1 || [];
+            const historico2 = data.historicoStatusFalha2 || [];
+
+            const ultimoStatus1 = historico1.length > 0 ? historico1[historico1.length - 1].split(' - ').slice(1).join(' - ') : '';
+            const ultimoStatus2 = historico2.length > 0 ? historico2[historico2.length - 1].split(' - ').slice(1).join(' - ') : '';
+
+            document.getElementById('status-falha1').value = ultimoStatus1;
             document.getElementById('data-falha2').value = data.dataFalha2 || '';
             document.getElementById('local-falha2').value = data.localFalha2 || '';
             document.getElementById('ta-falha2').value = data.taFalha2 || '';
             document.getElementById('rota-cabo-falha2').value = data.rotaCaboFalha2 || '';
-            document.getElementById('status-falha2').value = data.statusFalha2 || '';
+            document.getElementById('status-falha2').value = ultimoStatus2;
         }
     });
 }
