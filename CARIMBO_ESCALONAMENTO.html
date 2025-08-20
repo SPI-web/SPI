@@ -153,6 +153,26 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.18);
 }
 
+.btn-excluir {
+    background-color: #ff6f00;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #ff6f00;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
 
 .limparTabela {
     background-color: #ff6f00;
@@ -244,17 +264,18 @@
 
 
 <div class="centralizado">
-
-  <label for="historico"></label>
-  <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
-      <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
-  </select><br> 
-
-  <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
-  <button class="limparTabela">Limpar</button>
-
-  <br>
-</div>
+    <label for="historico"></label>
+    <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+        <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+    </select><br> 
+  
+    <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+    <button class="limparTabela">🗑️ Limpar</button>
+    <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+  
+    <br>
+  </div>
+  
 
 
 
@@ -511,7 +532,7 @@ function salvarFormulario() {
         return;
     }
 
-    const chave = ta; // TA será a chave única
+    const chave = ta;
     const dados = {
         escalonamento: document.getElementById('escalonamento').value,
         municipio: document.getElementById('municipio').value,
@@ -560,9 +581,10 @@ function salvarFormulario() {
 
 
 
+
 function atualizarDropdown(selecionarTA = '') {
     const dropdown = document.getElementById('historico');
-    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+    dropdown.innerHTML = '<option value="" hidden style="text-align: center;">-- Selecione um evento --</option>';
 
     firebase.database().ref('escalonamento').once('value', function(snapshot) {
         snapshot.forEach(function(child) {
@@ -580,6 +602,27 @@ function atualizarDropdown(selecionarTA = '') {
         });
     });
 }
+
+function excluirEventoSelecionado() {
+    const taSelecionado = document.getElementById('historico').value;
+    if (!taSelecionado) {
+        alert("Selecione um evento para excluir.");
+        return;
+    }
+
+    if (confirm(`Tem certeza que deseja excluir o evento ${taSelecionado}?`)) {
+        firebase.database().ref('escalonamento/' + taSelecionado).remove()
+            .then(() => {
+                alert(`Evento ${taSelecionado} excluído com sucesso.`);
+                atualizarDropdown();
+            })
+            .catch(error => {
+                alert("Erro ao excluir: " + error);
+            });
+    }
+}
+
+
 
 
 function carregarFormularioSelecionado() {
@@ -609,12 +652,12 @@ function carregarFormularioSelecionado() {
             document.getElementById('nivel').value = data.nivel || '';
             document.getElementById('status').value = data.status || '';
 
-            // Disparar o evento de mudança para aplicar a lógica de cor
             const escalonamentoSelect = document.getElementById('escalonamento');
             escalonamentoSelect.dispatchEvent(new Event('change'));
         }
     });
 }
+
 
 
 window.onload = function() {
@@ -633,6 +676,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Novos elementos da div centralizado
     const historicoSelect = document.getElementById("historico");
     const btnSalvar = document.querySelector(".btn-salvar");
+    const btnExcluir = document.querySelector(".btn-excluir");
     const btnLimpar = document.querySelector(".limparTabela");
 
     const COR_PADRAO = "#ff6f00";
@@ -712,6 +756,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (historicoSelect) historicoSelect.style.borderColor = corAtual;
         if (btnSalvar) btnSalvar.style.backgroundColor = corAtual;
+        if (btnExcluir) btnExcluir.style.backgroundColor = corAtual;
         if (btnLimpar) btnLimpar.style.backgroundColor = corAtual;
     });
 });
