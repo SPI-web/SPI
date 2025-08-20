@@ -454,24 +454,37 @@ function salvarFormulario() {
     }
 
     const chave = ta;
+    const statusFalha1 = document.getElementById('statusFalha1').value;
+    const statusFalha2 = document.getElementById('statusFalha2').value;
+    const timestamp = obterDataHoraAtual();
+
     const dados = {
         taFalha1: ta,
         horarioFalha1: document.getElementById('horarioFalha1').value,
-        statusFalha1: document.getElementById('statusFalha1').value,
         taFalha2: document.getElementById('taF2').value,
         horarioFalha2: document.getElementById('horarioFalha2').value,
-        statusFalha2: document.getElementById('statusFalha2').value,
         eps: document.getElementById('eps').value,
         municipio: document.getElementById('Municipio').value,
         equipamento: equipamento,
         afetacao: document.getElementById('Afetação').value,
         flat: document.getElementById('flat').value,
         tipoFalha: document.getElementById('tipoFalha').value,
-        dataFalha: document.getElementById('dataFalha').value
+        dataFalha: document.getElementById('dataFalha').value,
+        statusEvento: "Ativo" // Novo campo
     };
 
     const ref = firebase.database().ref('oltisolada/' + chave);
+
     ref.once('value', function(snapshot) {
+        const historico1 = snapshot.val()?.historicoStatusFalha1 || [];
+        const historico2 = snapshot.val()?.historicoStatusFalha2 || [];
+
+        historico1.push(`${timestamp} - ${statusFalha1}`);
+        historico2.push(`${timestamp} - ${statusFalha2}`);
+
+        dados.historicoStatusFalha1 = historico1;
+        dados.historicoStatusFalha2 = historico2;
+
         if (snapshot.exists()) {
             ref.update(dados, function(error) {
                 if (error) {
@@ -496,6 +509,18 @@ function salvarFormulario() {
 
 
 
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+
 function atualizarDropdown(selecionarTA = '') {
     const dropdown = document.getElementById('historico');
     dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
@@ -504,15 +529,21 @@ function atualizarDropdown(selecionarTA = '') {
         snapshot.forEach(function(child) {
             const ta = child.key;
             const data = child.val();
-            const equipamento = data && data.equipamento ? data.equipamento : '';
-            const option = document.createElement('option');
-            option.value = ta;
-            option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
-            if (ta === selecionarTA) {
-                option.selected = true;
-                carregarFormularioSelecionado();
+
+            // Filtra apenas eventos com statusEvento "Ativo"
+            if (data.statusEvento === "Ativo") {
+                const equipamento = data.equipamento || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
             }
-            dropdown.appendChild(option);
         });
     });
 }
@@ -526,14 +557,16 @@ function excluirEventoSelecionado() {
     }
 
     if (confirm(`Tem certeza que deseja excluir o evento ${taSelecionado}?`)) {
-        firebase.database().ref('oltisolada/' + taSelecionado).remove()
-            .then(() => {
-                alert(`Evento ${taSelecionado} excluído com sucesso.`);
-                atualizarDropdown(); // Atualiza a lista após exclusão
-            })
-            .catch(error => {
-                alert("Erro ao excluir: " + error);
-            });
+        firebase.database().ref('oltisolada/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} excluido com sucesso.`);
+            atualizarDropdown(); // Atualiza a lista após alteração
+        })
+        .catch(error => {
+            alert("Erro ao excluir: " + error);
+        });
     }
 }
 
@@ -548,10 +581,19 @@ function carregarFormularioSelecionado() {
         if (data) {
             document.getElementById('taF1').value = data.taFalha1 || '';
             document.getElementById('horarioFalha1').value = data.horarioFalha1 || '';
-            document.getElementById('statusFalha1').value = data.statusFalha1 || '';
+
+            // Carrega apenas o último status sem a data
+            const historico1 = data.historicoStatusFalha1 || [];
+            const historico2 = data.historicoStatusFalha2 || [];
+
+            const ultimoStatus1 = historico1.length > 0 ? historico1[historico1.length - 1].split(' - ').slice(1).join(' - ') : '';
+            const ultimoStatus2 = historico2.length > 0 ? historico2[historico2.length - 1].split(' - ').slice(1).join(' - ') : '';
+
+            document.getElementById('statusFalha1').value = ultimoStatus1;
             document.getElementById('taF2').value = data.taFalha2 || '';
             document.getElementById('horarioFalha2').value = data.horarioFalha2 || '';
-            document.getElementById('statusFalha2').value = data.statusFalha2 || '';
+            document.getElementById('statusFalha2').value = ultimoStatus2;
+
             document.getElementById('eps').value = data.eps || '';
             document.getElementById('Municipio').value = data.municipio || '';
             document.getElementById('equipamento').value = data.equipamento || '';
@@ -562,6 +604,7 @@ function carregarFormularioSelecionado() {
         }
     });
 }
+
 
 
 </script>
