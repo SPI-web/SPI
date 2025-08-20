@@ -130,6 +130,99 @@
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 9999;
     }
+
+
+    .btn-salvar {
+    background-color: #6d6765;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #6d6765;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+.btn-excluir {
+    background-color: #6d6765;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #6d6765;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+
+   .botaoLimpar {
+    background-color: #6d6765;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.botaoLimpar:hover {
+    background-color: #6d6765;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #6d6765;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #6d6765;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
@@ -155,8 +248,19 @@
         </table>
     </div>
 
-    <div class="botoes">
-        <button id="botaoLimpar">Limpar</button>
+    <div class="centralizado">
+      
+        <label for="historico"></label>
+        <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+            <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+        </select><br>  
+        
+        <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+        <button type="button" class="botaoLimpar" onclick="limparFormulario()">🗑️ Limpar</button>
+        <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+
+
+        <br>
     </div>
 
     <div class="container">
@@ -170,7 +274,7 @@
             <input type="text" id="ta" name="ta" required><br><br>
 
             <label for="dataAbertura">Data Abertura:</label>
-            <input type="text" id="dataAbertura" name="dataAbertura" required oninput="this.value = this.value.replace(/[^0-9/: ]/g, '')"><br><br>
+            <input type="text" id="dataAbertura" name="dataAbertura"  oninput="this.value = this.value.replace(/[^0-9/: ]/g, '')"><br><br>
 
             <label for="tipoAlarme">Tipo Alarme:</label>
             <input type="text" id="tipoAlarme" name="tipoAlarme" required><br><br>
@@ -230,7 +334,151 @@
         </div>
     </div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 
+
+<script>
+
+
+
+function salvarFormulario() {
+    const ta = document.getElementById('ta').value;
+
+    if (!ta) {
+        alert("Informe a TA para salvar.");
+        return;
+    }
+
+    const dados = {
+        responsavel: document.getElementById('responsavel').value,
+        ta: ta,
+        dataAbertura: document.getElementById('dataAbertura').value,
+        tipoAlarme: document.getElementById('tipoAlarme').value,
+        atCentralSite: document.getElementById('atCentralSite').value,
+        ddd: document.getElementById('ddd').value,
+        envio: document.getElementById('envio').value
+    };
+
+    const ref = firebase.database().ref('escalonamentoINFRA/' + ta);
+
+    ref.once('value', function(snapshot) {
+        if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
+        }
+
+        ref.update(dados, function(error) {
+            if (error) {
+                alert("Erro ao salvar: " + error);
+            } else {
+                alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                atualizarDropdown(ta);
+            }
+        });
+    });
+}
+
+
+
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('escalonamentoINFRA').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+
+            if (data.statusEvento === "Ativo") {
+                const responsavel = data.responsavel || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = responsavel ? `${ta} - ${responsavel}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
+            }
+        });
+    });
+}
+
+
+
+function excluirEventoSelecionado() {
+    const taSelecionado = document.getElementById('historico').value;
+    if (!taSelecionado) {
+        alert("Selecione um evento para encerrar.");
+        return;
+    }
+
+    if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('escalonamentoINFRA/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+            atualizarDropdown();
+        })
+        .catch(error => {
+            alert("Erro ao encerrar: " + error);
+        });
+    }
+}
+
+
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('escalonamentoINFRA/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('responsavel').value = data.responsavel || '';
+            document.getElementById('ta').value = data.ta || '';
+            document.getElementById('dataAbertura').value = data.dataAbertura || '';
+            document.getElementById('tipoAlarme').value = data.tipoAlarme || '';
+            document.getElementById('atCentralSite').value = data.atCentralSite || '';
+            document.getElementById('ddd').value = data.ddd || '';
+            document.getElementById('envio').value = data.envio || '';
+        }
+    });
+}
+
+
+
+</script>
     <script>
 
 function criarLinha(celulas = 11, valores = []) {
@@ -495,7 +743,7 @@ document.getElementById("ddd").addEventListener("input", function () {
     <div class="iframe-header">
         <button id="fecharIframe">X</button>
     </div>
-    <iframe src="https://spi-web.github.io/SPI/DDD.html" frameborder="0"></iframe>
+    <iframe src="https://grupotel-web.github.io/DDD.html" frameborder="0"></iframe>
 </div>
 
 <style>
@@ -613,4 +861,3 @@ document.getElementById("ddd").addEventListener("input", function () {
         document.getElementById('iframeContainer').style.display = 'none';
     });
 </script>
-
