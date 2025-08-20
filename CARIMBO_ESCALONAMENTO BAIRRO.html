@@ -440,7 +440,7 @@ const firebaseConfig = {
 
 function salvarFormulario() {
     const ta = document.getElementById('ta').value;
-    const equipamento = document.getElementById('equipamento')?.value || ''; // caso exista
+    const equipamento = document.getElementById('equipamento')?.value || '';
 
     if (!ta) {
         alert("Informe a TA para salvar.");
@@ -448,6 +448,9 @@ function salvarFormulario() {
     }
 
     const chave = ta;
+    const statusAtual = document.getElementById('status').value;
+    const timestamp = obterDataHoraAtual();
+
     const dados = {
         escalonamento: document.getElementById('escalonamento').value,
         municipio: document.getElementById('municipio').value,
@@ -464,31 +467,42 @@ function salvarFormulario() {
         outrosOPP: document.getElementById('outrosOPP').value,
         tempoOutro: document.getElementById('tempoOutro').value,
         nivel: document.getElementById('nivel').value,
-        status: document.getElementById('status').value
+        status: statusAtual,
+        equipamento: equipamento
     };
 
     const ref = firebase.database().ref('escalonamentoMOVEL/' + chave);
+
     ref.once('value', function(snapshot) {
-        if (snapshot.exists()) {
-            ref.update(dados, function(error) {
-                if (error) {
-                    alert("Erro ao atualizar: " + error);
-                } else {
-                    alert("Evento atualizado com sucesso!");
-                    atualizarDropdown(chave);
-                }
-            });
-        } else {
-            ref.set(dados, function(error) {
-                if (error) {
-                    alert("Erro ao salvar novo: " + error);
-                } else {
-                    alert("Novo evento salvo com sucesso!");
-                    atualizarDropdown(chave);
-                }
-            });
+        const historicoStatus = snapshot.val()?.historicoStatus || [];
+        historicoStatus.push(`${timestamp} - ${statusAtual}`);
+        dados.historicoStatus = historicoStatus;
+
+        // Se for novo, adiciona statusEvento como "Ativo"
+        if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
         }
+
+        ref.update(dados, function(error) {
+            if (error) {
+                alert("Erro ao salvar: " + error);
+            } else {
+                alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                atualizarDropdown(chave);
+            }
+        });
     });
+}
+
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
 
 
@@ -502,38 +516,46 @@ function atualizarDropdown(selecionarTA = '') {
         snapshot.forEach(function(child) {
             const ta = child.key;
             const data = child.val();
-            const equipamento = data && data.equipamento ? data.equipamento : '';
-            const option = document.createElement('option');
-            option.value = ta;
-            option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
-            if (ta === selecionarTA) {
-                option.selected = true;
-                carregarFormularioSelecionado();
+
+            if (data.statusEvento === "Ativo") {
+                const equipamento = data.equipamento || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = equipamento ? `${ta} - ${equipamento}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
             }
-            dropdown.appendChild(option);
         });
     });
 }
 
+
+
 function excluirEventoSelecionado() {
     const taSelecionado = document.getElementById('historico').value;
     if (!taSelecionado) {
-        alert("Selecione um evento para excluir.");
+        alert("Selecione um evento para encerrar.");
         return;
     }
 
-    if (confirm(`Tem certeza que deseja excluir o evento ${taSelecionado}?`)) {
-        firebase.database().ref('escalonamentoMOVEL/' + taSelecionado).remove()
-            .then(() => {
-                alert(`Evento ${taSelecionado} excluído com sucesso.`);
-                atualizarDropdown(); // Atualiza a lista após exclusão
-            })
-            .catch(error => {
-                alert("Erro ao excluir: " + error);
-            });
+    if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('escalonamentoMOVEL/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+            atualizarDropdown();
+        })
+        .catch(error => {
+            alert("Erro ao encerrar: " + error);
+        });
     }
 }
-
 
 
 
@@ -559,7 +581,12 @@ function carregarFormularioSelecionado() {
             document.getElementById('outrosOPP').value = data.outrosOPP || '';
             document.getElementById('tempoOutro').value = data.tempoOutro || '';
             document.getElementById('nivel').value = data.nivel || '';
-            document.getElementById('status').value = data.status || '';
+
+            const historicoStatus = data.historicoStatus || [];
+            const ultimoStatus = historicoStatus.length > 0
+                ? historicoStatus[historicoStatus.length - 1].split(' - ').slice(1).join(' - ')
+                : '';
+            document.getElementById('status').value = ultimoStatus;
         }
     });
 }
