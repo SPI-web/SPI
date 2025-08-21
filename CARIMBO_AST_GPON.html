@@ -77,10 +77,119 @@
         max-width: 1200px; /* Limita a largura máxima */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
         }
+
+               
+    .btn-salvar {
+    background-color: #000e8a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #000e8a;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+.btn-excluir {
+    background-color: #000e8a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #000e8a;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+
+   .limparTabela {
+    background-color: #000e8a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #000e8a;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #000e8a;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #000e8a;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
  </style>
 </head>
 <body>
     <div class="container-principal">
+
+        <div class="centralizado">
+      
+            <label for="historico"></label>
+            <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+                <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+            </select><br>  
+            
+            <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+            <button type="button" class="limparTabela" onclick="limparTabela()" >🗑️ Limpar</button>
+            <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+    
+    
+            <br>
+        </div>
+
  <div class="container">
  <div class="titulo">NT - SPI 🌐 OUTLIER AST (BANDA, IPTV, VOIP) 🌐</div>
  <h1>Formulário</h1>
@@ -160,6 +269,208 @@
  </div>
  </div>
 </div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+    function salvarFormulario() {
+        const ta = (document.getElementById('ta').value || '').trim();
+        const statusAtual = (document.getElementById('status').value || '').trim();
+        const timestamp = obterDataHoraAtual();
+    
+        if (!ta) {
+            alert("Informe o TA/TU para salvar.");
+            return;
+        }
+    
+        const dados = {
+            ta: ta,
+            servico: (document.getElementById('servico').value || '').trim(),
+            cluster: (document.getElementById('cluster').value || '').trim(),
+            bds: (document.getElementById('bds').value || '').trim(),
+            afetacao: (document.getElementById('afetacao').value || '').trim(),
+            municipio: (document.getElementById('municipio').value || '').trim(),
+            hostname: (document.getElementById('hostname').value || '').trim(),
+            // Para inputs type="datetime-local", use "YYYY-MM-DDTHH:mm"
+            dataFalha: document.getElementById('dataFalha').value || '',
+            // Mantém o último status também no nó raiz
+            status: statusAtual
+        };
+    
+        const ref = firebase.database().ref('NT_SPI_OUTLIER/' + ta);
+    
+        ref.once('value', function(snapshot) {
+            const historicoStatus = snapshot.val()?.historicoStatus || [];
+            if (statusAtual) {
+                historicoStatus.push(`${timestamp} - ${statusAtual}`);
+            }
+            dados.historicoStatus = historicoStatus;
+    
+            if (!snapshot.exists()) {
+                dados.statusEvento = "Ativo";
+                dados.criadoEm = new Date().toISOString();
+            }
+            dados.atualizadoEm = new Date().toISOString();
+    
+            ref.update(dados, function(error) {
+                if (error) {
+                    alert("Erro ao salvar: " + error);
+                } else {
+                    alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                    atualizarDropdown(ta);
+                }
+            });
+        });
+    }
+    
+    function obterDataHoraAtual() {
+        const agora = new Date();
+        const dia = String(agora.getDate()).padStart(2, '0');
+        const mes = String(agora.getMonth() + 1).padStart(2, '0');
+        const ano = agora.getFullYear();
+        const horas = String(agora.getHours()).padStart(2, '0');
+        const minutos = String(agora.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+    }
+    
+    function atualizarDropdown(selecionarTA = '') {
+        const dropdown = document.getElementById('historico');
+        if (!dropdown) return; // Se não existir o dropdown, apenas ignore
+    
+        dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+    
+        firebase.database().ref('NT_SPI_OUTLIER').once('value', function(snapshot) {
+            snapshot.forEach(function(child) {
+                const ta = child.key;
+                const data = child.val();
+    
+                if (data?.statusEvento === "Ativo") {
+                    const servico = data.servico || '';
+                    const municipio = data.municipio || '';
+                    const cluster = data.cluster || '';
+    
+                    const option = document.createElement('option');
+                    option.value = ta;
+                    // Customize o texto conforme preferir
+                    option.textContent = [ta, servico, municipio, cluster].filter(Boolean).join(' - ');
+    
+                    if (ta === selecionarTA) {
+                        option.selected = true;
+                        carregarFormularioSelecionado();
+                    }
+    
+                    dropdown.appendChild(option);
+                }
+            });
+        });
+    }
+    
+    function excluirEventoSelecionado() {
+        const dropdown = document.getElementById('historico');
+        if (!dropdown) {
+            alert("Não foi possível localizar o seletor de eventos (historico).");
+            return;
+        }
+    
+        const taSelecionado = dropdown.value;
+        if (!taSelecionado) {
+            alert("Selecione um evento para encerrar.");
+            return;
+        }
+    
+        if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+            firebase.database().ref('NT_SPI_OUTLIER/' + taSelecionado).update({
+                statusEvento: "Encerrado",
+                atualizadoEm: new Date().toISOString()
+            })
+            .then(() => {
+                alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+                atualizarDropdown();
+                limparFormulario();
+            })
+            .catch(error => {
+                alert("Erro ao encerrar: " + error);
+            });
+        }
+    }
+    
+    function carregarFormularioSelecionado() {
+        const dropdown = document.getElementById('historico');
+        if (!dropdown) return;
+    
+        const chave = dropdown.value;
+        if (!chave) return;
+    
+        firebase.database().ref('NT_SPI_OUTLIER/' + chave).once('value', function(snapshot) {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('servico').value = data.servico || '';
+                document.getElementById('cluster').value = data.cluster || '';
+                document.getElementById('bds').value = data.bds || '';
+                document.getElementById('afetacao').value = data.afetacao || '';
+                document.getElementById('ta').value = data.ta || chave;
+                document.getElementById('municipio').value = data.municipio || '';
+                document.getElementById('hostname').value = data.hostname || '';
+                document.getElementById('dataFalha').value = data.dataFalha || '';
+    
+                const historicoStatus = data.historicoStatus || [];
+                const ultimoStatus = historicoStatus.length > 0
+                    ? historicoStatus[historicoStatus.length - 1].split(' - ').slice(1).join(' - ')
+                    : (data.status || '');
+                document.getElementById('status').value = ultimoStatus;
+            }
+        });
+    }
+    
+    // Limpa o formulário (opcional)
+    function limparFormulario() {
+        const ids = ['servico', 'cluster', 'bds', 'afetacao', 'ta', 'municipio', 'hostname', 'dataFalha', 'status'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.type === 'text' || el.type === 'datetime-local') {
+                el.value = '';
+            }
+        });
+    }
+    
+    // Mantive um "limparTabela" compatível com seu padrão atual (se você chamar esse nome)
+    function limparTabela() {
+        const carimbo = document.getElementById('carimbo');
+        if (carimbo) carimbo.style.display = 'none';
+    
+        const form = document.getElementById('meuFormulario');
+        if (form) form.reset();
+    
+        // Se a função existir na sua página, chamamos sem quebrar
+        if (typeof desocultarFalha2 === 'function') {
+            desocultarFalha2();
+        }
+    }
+    
+    window.onload = function() {
+        atualizarDropdown();
+    };
+    </script>
+    
+
  <script>
  document.getElementById('meuFormulario').addEventListener('submit', function(event) {
  event.preventDefault();
