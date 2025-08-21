@@ -87,10 +87,118 @@
         max-width: 1200px; /* Limita a largura máxima */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
         }
+
+
+        
+    .btn-salvar {
+    background-color: #ffa600c9;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #ffa600c9;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+.btn-excluir {
+    background-color: #ffa600c9;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #ffa600c9;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+
+   .limparTabela {
+    background-color: #ffa600c9;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #ffa600c9;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #ffa600c9;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #ffa600c9;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
     <div class="container-principal">
+        <div class="centralizado">
+      
+            <label for="historico"></label>
+            <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+                <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+            </select><br>  
+            
+            <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+            <button type="button" class="limparTabela" onclick="limparTabela()" >🗑️ Limpar</button>
+            <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+    
+    
+            <br>
+        </div>
     <div class="container">
         <div class="carimboTitulo">NT-SPI <span class="emoji">⚠️</span> Avaliação de Risco Isolamento <span class="emoji">⚠️</span></div>
         <h1>Formulário</h1>
@@ -113,9 +221,9 @@
             <select id="analisadoPor" name="analisadoPor" required>
                 <option value="Quinteiro">Quinteiro</option>
                 <option value="Rodrigo">Rodrigo</option>
+                <option value="Alan">Alan</option>
                 <option value="Bruno">Bruno</option>
                 <option value="Leandro">Leandro</option>
-                <option value="Jefferson">Jefferson</option>
             </select><br><br>
             <label for="diagnostico">Diagnostico:</label>
             <textarea id="diagnostico" name="diagnostico" required></textarea><br><br>
@@ -191,6 +299,181 @@
         </div>
     </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+
+
+
+function salvarFormulario() {
+    const ta = document.getElementById('numeroTA').value;
+    const diagnosticoAtual = document.getElementById('diagnostico').value;
+    const timestamp = obterDataHoraAtual();
+
+    if (!ta) {
+        alert("Informe o número TA para salvar.");
+        return;
+    }
+
+    const dados = {
+        acionadoPor: document.getElementById('acionadoPor').value,
+        numeroTA: ta,
+        dataCriacao: document.getElementById('dataCriacao').value,
+        caboRota: document.getElementById('caboRota').value,
+        taConcorrente: document.getElementById('taConcorrente').value,
+        dataCriacaoConcorrente: document.getElementById('dataCriacaoConcorrente').value,
+        caboRotaConcorrente: document.getElementById('caboRotaConcorrente').value,
+        analisadoPor: document.getElementById('analisadoPor').value,
+        diagnostico: diagnosticoAtual,
+        autorizado: document.getElementById('autorizado').value
+    };
+
+    const ref = firebase.database().ref('RiscoIsolamento/' + ta);
+
+    ref.once('value', function(snapshot) {
+        const historicoDiagnostico = snapshot.val()?.historicoDiagnostico || [];
+        historicoDiagnostico.push(`${timestamp} - ${diagnosticoAtual}`);
+        dados.historicoDiagnostico = historicoDiagnostico;
+
+        if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
+        }
+
+        ref.update(dados, function(error) {
+            if (error) {
+                alert("Erro ao salvar: " + error);
+            } else {
+                alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                atualizarDropdown(ta);
+            }
+        });
+    });
+}
+
+
+
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('RiscoIsolamento').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+
+            if (data.statusEvento === "Ativo") {
+                const acionadoPor = data.acionadoPor || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = acionadoPor ? `${ta} - ${acionadoPor}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
+            }
+        });
+    });
+}
+
+
+
+function excluirEventoSelecionado() {
+    const taSelecionado = document.getElementById('historico').value;
+    if (!taSelecionado) {
+        alert("Selecione um evento para encerrar.");
+        return;
+    }
+
+    if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('RiscoIsolamento/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+            atualizarDropdown();
+        })
+        .catch(error => {
+            alert("Erro ao encerrar: " + error);
+        });
+    }
+}
+
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('RiscoIsolamento/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('acionadoPor').value = data.acionadoPor || '';
+            document.getElementById('numeroTA').value = data.numeroTA || '';
+            document.getElementById('dataCriacao').value = data.dataCriacao || '';
+            document.getElementById('caboRota').value = data.caboRota || '';
+            document.getElementById('taConcorrente').value = data.taConcorrente || '';
+            document.getElementById('dataCriacaoConcorrente').value = data.dataCriacaoConcorrente || '';
+            document.getElementById('caboRotaConcorrente').value = data.caboRotaConcorrente || '';
+            document.getElementById('analisadoPor').value = data.analisadoPor || '';
+            document.getElementById('autorizado').value = data.autorizado || '';
+
+            const historicoDiagnostico = data.historicoDiagnostico || [];
+            const ultimoDiagnostico = historicoDiagnostico.length > 0
+                ? historicoDiagnostico[historicoDiagnostico.length - 1].split(' - ').slice(1).join(' - ')
+                : '';
+            document.getElementById('diagnostico').value = ultimoDiagnostico;
+        }
+    });
+}
+
+function limparTabela() {
+    
+    // Simulando o clique no botão 'voltar'
+    document.getElementById('carimbo').style.display = 'none';
+    document.getElementById('meuFormulario').reset();
+
+    // Desocultar os campos de Falha 2
+    desocultarFalha2();
+}
+
+window.onload = function() {
+    atualizarDropdown();
+};
+</script>
+
     <script>
     document.getElementById('meuFormulario').addEventListener('submit', function(event) {
         event.preventDefault();
