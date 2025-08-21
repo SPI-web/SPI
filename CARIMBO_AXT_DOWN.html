@@ -75,6 +75,98 @@
         max-width: 1200px; /* Limita a largura máxima */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 1); /* Sombra suave */
         }
+
+        .btn-salvar {
+    background-color: #db7099;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #db7099;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+.btn-excluir {
+    background-color: #db7099;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #db7099;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+
+   .limparTabela {
+    background-color: #db7099;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #db7099;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #db7099;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #db7099;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
     </style>
 </head>
 <body>
@@ -85,6 +177,22 @@
             <span>Sair</span>
         </div>
 
+
+        <div class="centralizado">
+      
+            <label for="historico"></label>
+            <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+                <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+            </select><br>  
+            
+            <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+            <button type="button" class="limparTabela" onclick="limparTabela()" >🗑️ Limpar</button>
+            <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+    
+    
+            <br>
+        </div>
+    
     <div class="container">
         <div class="titulo">NT - SPI 🏢 CIRCUITO FRANQUIA AXT ISOLADA 🏢</div>
         <h1>Formulário</h1>
@@ -132,24 +240,24 @@
                 <option value="AXT - PINDORAMA x SANTA ADELIA - PPAL">AXT - PINDORAMA x SANTA ADELIA - PPAL</option>
                 <option value="AXT - PINDORAMA x SANTA ADELIA - BCKP">AXT - PINDORAMA x SANTA ADELIA - BCKP</option>
                 <option value="AXT - PITANGUEIRAS PPAL x ARARAQUARA">AXT - PITANGUEIRAS PPAL x ARARAQUARA</option>
-                                   <option value="AXT - PITANGUEIRAS BCKP x ARARAQUARA">AXT - PITANGUEIRAS BCKP x ARARAQUARA</option>
-                                <option value="AXT - PORTO FERREIRA - PPAL">AXT - PORTO FERREIRA - PPAL</option>
-                                <option value="AXT - PORTO FERREIRA - BCKP">AXT - PORTO FERREIRA - BCKP</option>
-                                <option value="AXT - RIO DAS PEDRAS-SP - PPAL x MONTE MOR">AXT - RIO DAS PEDRAS-SP - PPAL x MONTE MOR</option>
-                                <option value="AXT - RIO DAS PEDRAS-SP - BCKP x MONTE MOR">AXT - RIO DAS PEDRAS-SP - BCKP x MONTE MOR</option>
-                                <option value="AXT - STA CRUZ DAS PALMEIRAS - PPAL x AGUAI">AXT - STA CRUZ DAS PALMEIRAS - PPAL x AGUAI</option>
-                                <option value="AXT - STA CRUZ DAS PALMEIRAS - BCKP x PORTO FERREIRA">AXT - STA CRUZ DAS PALMEIRAS - BCKP x PORTO FERREIRA</option>
-                                <option value="AXT - SAO PEDRO - PPAL">AXT - SAO PEDRO - PPAL</option>
-                                <option value="AXT - SAO PEDRO - BCKP">AXT - SAO PEDRO - BCKP</option>
-                                <option value="AXT - STA RITA PASSA QUATRO - BCKP x PORTO FERREIRA">AXT - STA RITA PASSA QUATRO - BCKP x PORTO FERREIRA</option>
-                                <option value="AXT - STA RITA PASSA QUATRO - PPAL x AGUAI">AXT - STA RITA PASSA QUATRO - PPAL x AGUAI</option>
-                                <option value="AXT - TAQUARITINGA - PPAL">AXT - TAQUARITINGA - PPAL</option>
-                                <option value="AXT - TAQUARITINGA - BCKP">AXT - TAQUARITINGA - BCKP</option>
-                                <option value="AXT - VARGEM GRANDE PAULISTA - PPAL">AXT - VARGEM GRANDE PAULISTA - PPAL</option>
-                                <option value="AXT - VARGEM GRANDE PAULISTA - BCKP">AXT - VARGEM GRANDE PAULISTA - BCKP</option>
-                                <option value="AXT - VARGEM GRANDE DO SUL PPAL x AGUAI">AXT - VARGEM GRANDE DO SUL PPAL x AGUAI</option>
-                                <option value="AXT - VARGEM GRANDE DO SUL BCKP x PORTO FERREIRA">AXT - VARGEM GRANDE DO SUL BCKP x PORTO FERREIRA</option>
-                            </select><br><br>
+                <option value="AXT - PITANGUEIRAS BCKP x ARARAQUARA">AXT - PITANGUEIRAS BCKP x ARARAQUARA</option>
+                <option value="AXT - PORTO FERREIRA - PPAL">AXT - PORTO FERREIRA - PPAL</option>
+                <option value="AXT - PORTO FERREIRA - BCKP">AXT - PORTO FERREIRA - BCKP</option>
+                <option value="AXT - RIO DAS PEDRAS-SP - PPAL x MONTE MOR">AXT - RIO DAS PEDRAS-SP - PPAL x MONTE MOR</option>
+                <option value="AXT - RIO DAS PEDRAS-SP - BCKP x MONTE MOR">AXT - RIO DAS PEDRAS-SP - BCKP x MONTE MOR</option>
+                <option value="AXT - STA CRUZ DAS PALMEIRAS - PPAL x AGUAI">AXT - STA CRUZ DAS PALMEIRAS - PPAL x AGUAI</option>
+                <option value="AXT - STA CRUZ DAS PALMEIRAS - BCKP x PORTO FERREIRA">AXT - STA CRUZ DAS PALMEIRAS - BCKP x PORTO FERREIRA</option>
+                <option value="AXT - SAO PEDRO - PPAL">AXT - SAO PEDRO - PPAL</option>
+                <option value="AXT - SAO PEDRO - BCKP">AXT - SAO PEDRO - BCKP</option>
+                <option value="AXT - STA RITA PASSA QUATRO - BCKP x PORTO FERREIRA">AXT - STA RITA PASSA QUATRO - BCKP x PORTO FERREIRA</option>
+                <option value="AXT - STA RITA PASSA QUATRO - PPAL x AGUAI">AXT - STA RITA PASSA QUATRO - PPAL x AGUAI</option>
+                <option value="AXT - TAQUARITINGA - PPAL">AXT - TAQUARITINGA - PPAL</option>
+                <option value="AXT - TAQUARITINGA - BCKP">AXT - TAQUARITINGA - BCKP</option>
+                <option value="AXT - VARGEM GRANDE PAULISTA - PPAL">AXT - VARGEM GRANDE PAULISTA - PPAL</option>
+                <option value="AXT - VARGEM GRANDE PAULISTA - BCKP">AXT - VARGEM GRANDE PAULISTA - BCKP</option>
+                <option value="AXT - VARGEM GRANDE DO SUL PPAL x AGUAI">AXT - VARGEM GRANDE DO SUL PPAL x AGUAI</option>
+                <option value="AXT - VARGEM GRANDE DO SUL BCKP x PORTO FERREIRA">AXT - VARGEM GRANDE DO SUL BCKP x PORTO FERREIRA</option>
+            </select><br><br>
                             <label for="bdFalha1">BD FALHA 1:</label>
                             <input type="text" id="bdFalha1" name="bdFalha1" required><br><br>
                             <label for="taFalha1">TA FALHA 1:</label>
@@ -218,6 +326,188 @@
                         </div>
                     </div>
                 </div>
+                <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+
+
+function salvarFormulario() {
+    const ta = document.getElementById('taFalha1').value;
+    const status1 = document.getElementById('status1').value;
+    const status2 = document.getElementById('status2').value;
+    const timestamp = obterDataHoraAtual();
+
+    if (!ta) {
+        alert("Informe a TA FALHA 1 para salvar.");
+        return;
+    }
+
+    const dados = {
+        franquia: document.getElementById('franquia').value,
+        bdFalha1: document.getElementById('bdFalha1').value,
+        taFalha1: ta,
+        dataTAFalha1: document.getElementById('dataTAFalha1').value,
+        status1: status1,
+        bdFalha2: document.getElementById('bdFalha2').value,
+        taFalha2: document.getElementById('taFalha2').value,
+        dataTAFalha2: document.getElementById('dataTAFalha2').value,
+        status2: status2
+    };
+
+    const ref = firebase.database().ref('AxtDown/' + ta);
+
+    ref.once('value', function(snapshot) {
+        const historico1 = snapshot.val()?.historicoStatus1 || [];
+        const historico2 = snapshot.val()?.historicoStatus2 || [];
+
+        historico1.push(`${timestamp} - ${status1}`);
+        historico2.push(`${timestamp} - ${status2}`);
+
+        dados.historicoStatus1 = historico1;
+        dados.historicoStatus2 = historico2;
+
+        if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
+        }
+
+        ref.update(dados, function(error) {
+            if (error) {
+                alert("Erro ao salvar: " + error);
+            } else {
+                alert(snapshot.exists() ? "Evento atualizado com sucesso!" : "Novo evento salvo com sucesso!");
+                atualizarDropdown(ta);
+            }
+        });
+    });
+}
+
+
+
+
+
+function obterDataHoraAtual() {
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+
+function atualizarDropdown(selecionarTA = '') {
+    const dropdown = document.getElementById('historico');
+    dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+
+    firebase.database().ref('AxtDown').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+            const ta = child.key;
+            const data = child.val();
+
+            if (data.statusEvento === "Ativo") {
+                const franquia = data.franquia || '';
+                const option = document.createElement('option');
+                option.value = ta;
+                option.textContent = franquia ? `${ta} - ${franquia}` : ta;
+
+                if (ta === selecionarTA) {
+                    option.selected = true;
+                    carregarFormularioSelecionado();
+                }
+
+                dropdown.appendChild(option);
+            }
+        });
+    });
+}
+
+
+
+function excluirEventoSelecionado() {
+    const taSelecionado = document.getElementById('historico').value;
+    if (!taSelecionado) {
+        alert("Selecione um evento para encerrar.");
+        return;
+    }
+
+    if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('AxtDown/' + taSelecionado).update({
+            statusEvento: "Encerrado"
+        })
+        .then(() => {
+            alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+            atualizarDropdown();
+        })
+        .catch(error => {
+            alert("Erro ao encerrar: " + error);
+        });
+    }
+}
+
+
+
+function carregarFormularioSelecionado() {
+    const chave = document.getElementById('historico').value;
+    if (!chave) return;
+
+    firebase.database().ref('AxtDown/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('franquia').value = data.franquia || '';
+            document.getElementById('bdFalha1').value = data.bdFalha1 || '';
+            document.getElementById('taFalha1').value = data.taFalha1 || '';
+            document.getElementById('dataTAFalha1').value = data.dataTAFalha1 || '';
+            document.getElementById('bdFalha2').value = data.bdFalha2 || '';
+            document.getElementById('taFalha2').value = data.taFalha2 || '';
+            document.getElementById('dataTAFalha2').value = data.dataTAFalha2 || '';
+
+            const historico1 = data.historicoStatus1 || [];
+            const historico2 = data.historicoStatus2 || [];
+
+            const ultimoStatus1 = historico1.length > 0 ? historico1[historico1.length - 1].split(' - ').slice(1).join(' - ') : '';
+            const ultimoStatus2 = historico2.length > 0 ? historico2[historico2.length - 1].split(' - ').slice(1).join(' - ') : '';
+
+            document.getElementById('status1').value = ultimoStatus1;
+            document.getElementById('status2').value = ultimoStatus2;
+        }
+    });
+}
+
+
+function limparTabela() {
+    
+    // Simulando o clique no botão 'voltar'
+    document.getElementById('carimbo').style.display = 'none';
+    document.getElementById('meuFormulario').reset();
+
+    // Desocultar os campos de Falha 2
+    desocultarFalha2();
+}
+
+
+window.onload = function() {
+    atualizarDropdown();
+};
+
+
+</script>
                     <script>
                         document.getElementById('meuFormulario').addEventListener('submit', function(event) {
                             event.preventDefault();
