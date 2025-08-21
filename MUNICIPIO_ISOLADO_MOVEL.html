@@ -80,10 +80,117 @@
         }
 
 
+               
+    .btn-salvar {
+    background-color: #380450;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-salvar:hover {
+    background-color: #380450;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+.btn-excluir {
+    background-color: #380450;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-excluir:hover {
+    background-color: #380450;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+
+
+
+   .limparTabela {
+    background-color: #380450;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.1s;
+}
+.limparTabela:hover {
+    background-color: #380450;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.select-historico {
+    width: 60%;
+    padding: 8px 12px;
+    border: 2px solid #380450;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border 0.2s;
+}
+.select-historico:focus {
+    border-color: #380450;
+    outline: none;
+    box-shadow: 0 0 0 2px #ff63474d;
+}
+
+.centralizado {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.centralizado .btn-salvar,
+.centralizado .select-historico {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
+
     </style>
 </head>
 <body>
     <div class="container-principal">
+        <div class="centralizado">
+      
+            <label for="historico"></label>
+            <select id="historico" class="select-historico" onchange="carregarFormularioSelecionado()">
+                <option value="" hidden style="text-align: center;">-- Selecione um evento --</option>
+            </select><br>  
+            
+            <button type="button" class="btn-salvar" onclick="salvarFormulario()">💾 Salvar</button>
+            <button type="button" class="limparTabela" onclick="limparFormulario()" >🗑️ Limpar</button>
+            <button type="button" class="btn-excluir" onclick="excluirEventoSelecionado()">❌ Excluir Evento</button>
+    
+    
+            <br>
+        </div>
     <div class="container">
         <div class="titulo">NT-SPI 🗼 Afetação Móvel 🗼</div>
         <h1>Formulário</h1><br>
@@ -159,6 +266,192 @@
 
     </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3RcO5CLTdElfKWs-9NRYZK3bYQOaZjvY",
+  authDomain: "gestao-uplink-down.firebaseapp.com",
+  databaseURL: "https://gestao-uplink-down-default-rtdb.firebaseio.com",
+  projectId: "gestao-uplink-down",
+  storageBucket: "gestao-uplink-down.firebasestorage.app",
+  messagingSenderId: "44245495345",
+  appId: "1:44245495345:web:00b6647e40241b6f47af10",
+  measurementId: "G-9267XD7E6T"
+};
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+<script>
+    // Salva ou atualiza um evento usando taRaiz como chave
+    function salvarFormulario() {
+      const taRaiz = (document.getElementById('taRaiz').value || '').trim();
+      const statusAtual = (document.getElementById('status').value || '').trim();
+      const timestamp = obterDataHoraAtual();
+    
+      if (!taRaiz) {
+        alert("Informe o TA Raiz para salvar.");
+        return;
+      }
+    
+      const dados = {
+        taRaiz: taRaiz,
+        causa: (document.getElementById('causa').value || '').trim(),
+        cidade: (document.getElementById('cidade').value || '').trim(),
+        erbAfetacao: (document.getElementById('erbAfetacao').value || '').trim(),
+        qtdsiteAfetado: (document.getElementById('qtdsiteAfetado').value || '').trim(),
+        // Para inputs type="datetime-local", use o formato "YYYY-MM-DDTHH:mm"
+        dataCriacao: document.getElementById('dataCriacao').value || '',
+        status: statusAtual // mantém o último status também no nó raiz
+      };
+    
+      const ref = firebase.database().ref('MunicipioIsolado/' + taRaiz);
+    
+      ref.once('value')
+        .then(snapshot => {
+          // Atualiza o histórico de status, preservando entradas anteriores
+          const historicoStatus = snapshot.val()?.historicoStatus || [];
+          if (statusAtual) {
+            historicoStatus.push(`${timestamp} - ${statusAtual}`);
+          }
+          dados.historicoStatus = historicoStatus;
+    
+          // Se for novo, cria com status "Ativo"
+          if (!snapshot.exists()) {
+            dados.statusEvento = "Ativo";
+          }
+          return ref.update(dados);
+        })
+        .then(() => {
+          alert("Dados salvos com sucesso!");
+          atualizarDropdown(taRaiz);
+        })
+        .catch(error => {
+          alert("Erro ao salvar: " + (error?.message || error));
+        });
+    }
+    
+    // Utilitário para timestamp legível (opcional)
+    function obterDataHoraAtual() {
+      const agora = new Date();
+      const dia = String(agora.getDate()).padStart(2, '0');
+      const mes = String(agora.getMonth() + 1).padStart(2, '0');
+      const ano = agora.getFullYear();
+      const horas = String(agora.getHours()).padStart(2, '0');
+      const minutos = String(agora.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+    }
+    
+    // Recarrega a lista de eventos "Ativo" no dropdown #historico
+    function atualizarDropdown(selecionarTA = '') {
+      const dropdown = document.getElementById('historico');
+      if (!dropdown) return; // Se não existir o dropdown, apenas ignore
+    
+      dropdown.innerHTML = '<option value="">-- Selecione um evento --</option>';
+    
+      firebase.database().ref('MunicipioIsolado').once('value', function(snapshot) {
+        snapshot.forEach(function(child) {
+          const ta = child.key;
+          const data = child.val() || {};
+    
+          if (data.statusEvento === "Ativo") {
+            const cidade = data.cidade || '';
+    
+            const option = document.createElement('option');
+            option.value = ta;
+            // Ajuste o texto como preferir
+            option.textContent = [ta, cidade].filter(Boolean).join(' - ');
+    
+            if (ta === selecionarTA) {
+              option.selected = true;
+              carregarFormularioSelecionado();
+            }
+    
+            dropdown.appendChild(option);
+          }
+        });
+      });
+    }
+    
+    // Marca o evento selecionado como "Encerrado"
+    function excluirEventoSelecionado() {
+      const dropdown = document.getElementById('historico');
+      if (!dropdown) {
+        alert("Não foi possível localizar o seletor de eventos (historico).");
+        return;
+      }
+    
+      const taSelecionado = dropdown.value;
+      if (!taSelecionado) {
+        alert("Selecione um evento para encerrar.");
+        return;
+      }
+    
+      if (confirm(`Tem certeza que deseja encerrar o evento ${taSelecionado}?`)) {
+        firebase.database().ref('MunicipioIsolado/' + taSelecionado).update({
+          statusEvento: "Encerrado"
+        })
+        .then(() => {
+          alert(`Evento ${taSelecionado} encerrado com sucesso.`);
+          atualizarDropdown();
+          limparFormulario();
+        })
+        .catch(error => {
+          alert("Erro ao encerrar: " + (error?.message || error));
+        });
+      }
+    }
+    
+    // Carrega os dados do evento escolhido no dropdown para o formulário
+    function carregarFormularioSelecionado() {
+      const dropdown = document.getElementById('historico');
+      if (!dropdown) return;
+    
+      const chave = dropdown.value;
+      if (!chave) return;
+    
+      firebase.database().ref('MunicipioIsolado/' + chave).once('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data) {
+          document.getElementById('taRaiz').value = data.taRaiz || chave;
+          document.getElementById('causa').value = data.causa || '';
+          document.getElementById('cidade').value = data.cidade || '';
+          document.getElementById('erbAfetacao').value = data.erbAfetacao || '';
+          document.getElementById('qtdsiteAfetado').value = data.qtdsiteAfetado || '';
+          document.getElementById('dataCriacao').value = data.dataCriacao || '';
+    
+          // Mostra o último status salvo (a partir do histórico, se houver)
+          const historicoStatus = data.historicoStatus || [];
+          const ultimoStatus = historicoStatus.length > 0
+            ? historicoStatus[historicoStatus.length - 1].split(' - ').slice(1).join(' - ')
+            : (data.status || '');
+          document.getElementById('status').value = ultimoStatus;
+        }
+      });
+    }
+    
+    // (Opcional) Limpa o formulário para novo cadastro
+    function limparFormulario() {
+      const ids = ['taRaiz', 'causa', 'cidade', 'erbAfetacao', 'qtdsiteAfetado', 'dataCriacao', 'status'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.type === 'text' || el.type === 'datetime-local') {
+          el.value = '';
+        }
+      });
+    }
+    
+    // Carrega a lista ao abrir a página
+    window.onload = function() {
+      atualizarDropdown();
+    };
+    </script>
+    
+
     <script>
 
 function formatarDataHora(dataCriacao) {
