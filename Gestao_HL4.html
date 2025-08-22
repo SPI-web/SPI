@@ -217,7 +217,7 @@ td {
 </form>
 <div class="update-info">
 <img alt="Imagem" src="icons/icone_HL4.png"/>
-<div style="font-size: 13px;">NT-SPI - GESTÃO HL4 - Atualização: <span id="currentDateTime"></span></div>
+<div style="font-size: 13px;">NT-SPI - GESTÃO CORE FUSION E HL4 - Atualização: <span id="currentDateTime"></span></div>
 </div><br/><br/>
 <div class="chart-container">
 <div class="chart-table">
@@ -450,7 +450,7 @@ tempoCell.style.backgroundColor = "#f0f0f0";
       // ÁREA RESPONSÁVEL (select)
       const areaCell = newRow.insertCell();
       const select = document.createElement("select");
-      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL"].forEach(optionText => {
+      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL", "NOC", "REDE SUDESTE", "N1-SUDESTE", "OPERAÇÃO REDE-IP", "BANDA LARGA"].forEach(optionText => {
         const option = document.createElement("option");
         option.value = optionText;
         option.textContent = optionText;
@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", carregarDoFirebase);
     } else if (i === 5) {
       // ÁREA RESPONSÁVEL (select)
       var select = document.createElement("select");
-      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL"].forEach(optionText => {
+      ["SELECIONE", "ABILITY", "TEL-REDE", "TEL-N1", "ICOMON", "REDE CAPITAL", "N1 CAPITAL", "NOC", "REDE SUDESTE", "N1-SUDESTE", "OPERAÇÃO REDE-IP", "BANDA LARGA"].forEach(optionText => {
         var option = document.createElement("option");
         option.value = optionText;
         option.textContent = optionText;
